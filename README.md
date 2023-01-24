@@ -3,8 +3,7 @@
 
 <H1><b>Metabarcoding Joining Obitools &amp; Linkage Networks In R</b></H1>
 
-<b>by Owen S. Wangensteen (University of Barcelona).</b>
-<b>and Adrià Antich (CEAB-CSIC).</b>
+<b>by Owen S. Wangensteen (University of Barcelona) and Adrià Antich (CEAB-CSIC).</b>
 
 MJOLNIR is a powerful tool to crush big amounts of raw metabarcoding data, and molding them into organized data sets of taxonomically assigned MOTUs. 
 
