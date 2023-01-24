@@ -13,7 +13,7 @@ MJOLNIR comes in an R package, so that modular metabarcoding pipelines are easy 
 MJOLNIR depends on the following dependencies, which must be installed in the system and properly working:
 
 - OBITools 3 (Boyer et al. 2016):
-  Original information about OBITools here: https://git.metabarcoding.org/obitools/obitools/wikis/home
+  Original information about OBITools 3 here: https://git.metabarcoding.org/obitools/obitools3
 
 - VSEARCH (Rognes et al. 2016): 
   Help on installing VSEARCH: https://github.com/torognes/vsearch
