@@ -9,12 +9,15 @@
 # Otherwise, when demultiplexed=FALSE, the primers information must be already written in the LIBX_ngsfilter.tsv files.
 
 mjolnir2_FREYJA <- function(lib_prefix="",cores=1,Lmin=299,Lmax=320,lib="", fasta_output=F,fastq_output=T,score_obialign=40,
-                            demultiplexed=F,primer_F="GGWACWRGWTGRACWNTNTAYCCYCC",primer_R="TANACYTCNGGRTGNCCRAARAAYCA",R1_motif="_R1",R2_motif="_R2",obipath="",remove_DMS=T){
+                            demultiplexed=F,primer_F="GGWACWRGWTGRACWNTNTAYCCYCC",primer_R="TANACYTCNGGRTGNCCRAARAAYCA",
+                            R1_motif="_R1",R2_motif="_R2",obipath=NULL,remove_DMS=T){
 
   message("FREYJA will do paired-end alignment, demultiplexing and length filter.")
   suppressPackageStartupMessages(library(parallel))
   no_cores <- cores*length(lib_prefix)
   old_path <- Sys.getenv("PATH")
+  if (is.null(obipath)) obipath <- "~/obi3-env/bin/"
+  obipath <- path.expand(obipath)
   Sys.setenv(PATH = paste(old_path, path.expand(obipath), sep = ":"))
 
   X <- NULL
