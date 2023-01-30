@@ -16,7 +16,8 @@
 
 
 mjolnir4_ODIN <- function(lib,cores,d=13,min_reads_MOTU=2,min_reads_ESV=2,alpha=5,COI=T,entropy=c(0.47,0.23,1.02,313),#entropy=F/c("auto_sample",313)/c("auto_dataset")
-                          algorithm="DnoisE_SWARM",obipath="",python_packages="", swarmpath=NULL, dnoise_path=NULL, remove_singletons = TRUE,remove_DMS=F){
+                          algorithm="DnoisE_SWARM",obipath="",python_packages="", swarmpath=NULL, dnoise_path=NULL, 
+                          remove_singletons = TRUE,remove_DMS=T){
   #####
   # 0: define variables
   #####
@@ -26,6 +27,7 @@ mjolnir4_ODIN <- function(lib,cores,d=13,min_reads_MOTU=2,min_reads_ESV=2,alpha=
   if (is.null(swarmpath)) swarmpath <- "~/swarm/bin/"
   swarmpath <- path.expand(swarmpath)
   swarm <- paste0(swarmpath,"/swarm")
+  if (is.null(obipath)) obipath <- "~/obi3-env/bin/"
   obipath <- path.expand(obipath)
   dnoise <- paste0("python3 ", dnoise_path, "/DnoisE.py") # Change this to where the Dnoise executable is
   old_path <- Sys.getenv("PATH")

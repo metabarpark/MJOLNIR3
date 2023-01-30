@@ -6,8 +6,8 @@
 
 
 mjolnir8_RAGNAROC <- function(lib,metadata_table="",output_file="",output_file_ESV="",min_reads=2,min_relative=1/50000,
-                              remove_bacteria=F,remove_contamination=F,contamination_file="contaminants.txt",
-                              ESV_within_MOTU=F,blank_col="BLANK",blank_tag=T,remove_numts=F,cores=1,blank_relative=0.1){
+                              remove_bacteria=T,remove_contamination=F,contamination_file="contaminants.txt",
+                              ESV_within_MOTU=T,blank_col="BLANK",blank_tag=T,remove_numts=F,cores=1,blank_relative=0.1){
 
   message("RAGNAROC is coming. Original sample names will be recovered.")
   suppressPackageStartupMessages(library(tidyr))

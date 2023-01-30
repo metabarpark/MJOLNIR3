@@ -3,9 +3,11 @@
 # After assignment with ecotag, higher taxa at ranks higher than order are added from custom CSV files.
 # THOR replaces owi_add_taxonomy
 
-mjolnir5_THOR <- function(lib,cores,tax_dir,tax_dms_name=NULL,ref_db=NULL,obipath="",run_ecotag=T,remove_DMS=F){
+mjolnir5_THOR <- function(lib,cores,tax_dir,tax_dms_name=NULL,ref_db=NULL,obipath="",run_ecotag=T,remove_DMS=T){
 
   old_path <- Sys.getenv("PATH")
+  if (is.null(obipath)) obipath <- "~/obi3-env/bin/"
+  obipath <- path.expand(obipath)
   Sys.setenv(PATH = paste(old_path, obipath, sep = ":"))
 
   if (run_ecotag) {
@@ -27,7 +29,7 @@ mjolnir5_THOR <- function(lib,cores,tax_dir,tax_dms_name=NULL,ref_db=NULL,obipat
     # run there the ecotag
     X <- NULL
     for (i in 1:cores) {
-      system(paste0("mkdir ",lib, "_THOR_",sprintf("%02d",i)," ; cp -r ",tax_dir,tax_dms_name,".obidms ",lib, "_THOR_",sprintf("%02d",i),"/. ; "),intern = T, wait = T)
+      system(paste0("mkdir ",lib, "_THOR_",sprintf("%02d",i)," ; cp -r ",paste0(tax_dir,tax_dms_name,sep='/'),".obidms ",lib, "_THOR_",sprintf("%02d",i),"/. ; "),intern = T, wait = T)
       X <- c(X,paste0("cd ",lib, "_THOR_",sprintf("%02d",i)," ; ",
                       "obi import --fasta-input ../",lib,"_ODIN_part_",sprintf("%02d",i),".fasta ",tax_dms_name,"/seqs ; ",
                       # "obi import --fasta-input ",lib,"_ODIN_part_",sprintf("%02d",i),".fasta ",lib, "_THOR_",sprintf("%02d",i),"/seqs ; ",
