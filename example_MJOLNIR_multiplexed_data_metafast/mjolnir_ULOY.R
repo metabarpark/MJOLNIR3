@@ -12,7 +12,7 @@ lib <- "ULOY"
 
 
 obipath="~/obi3-env/bin/"
-vseatchpath = "~/vsearch-2.22.1/bin/"
+vsearchpath = "~/vsearch-2.22.1/bin/"
 swarmpath = "~/swarm/bin/"
 dnoise_path = "~/DnoisE/src/"
 tax_dir = "~/taxo_NCBI/"
