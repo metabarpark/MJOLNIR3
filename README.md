@@ -1,5 +1,5 @@
 # MJOLNIR
-![MJOLNIR](https://github.com/uit-metabarcoding/MJOLNIR/blob/main/mjolnir_blue_mid.png)
+![MJOLNIR](https://github.com/adriantich/MJOLNIR3/blob/main/MJOLNIR.png)
 
 <H1><b>Metabarcoding Joining Obitools &amp; Linkage Networks In R</b></H1>
 
