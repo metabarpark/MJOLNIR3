@@ -7,11 +7,9 @@
 
 <b>by Owen S. Wangensteen & Adrià Antich.</b>
 
-## WARNING!! This README.md file is not updated. Please do not take this into account!
-
 MJOLNIR3 is a powerful tool to crush big amounts of raw metabarcoding data, and molding them into organized data sets of taxonomically assigned MOTUs. 
 
-MJOLNIR3 comes in an R package, so that modular metabarcoding pipelines are easy to run from the R environment. MJOLNIR3 runs on Linux and Mac systems. The extensive use of package parallel and several dependencies that are designed primarily for Linux systems (see below) makes the success of installations in Windows highly improbable. Users are welcome to try to install and run MJOLNIR3 on Windows Linux Subsystem, but I would not recommend that.
+MJOLNIR3 comes in an R package, so that modular metabarcoding pipelines are easy to run from the R environment. MJOLNIR3 runs on Linux and Mac systems. The extensive use of package parallel and several dependencies that are designed primarily for Linux systems (see below) makes the success of installations in Windows highly improbable. Users are welcome to try to install and run MJOLNIR3 on Windows Linux Subsystem, but we would not recommend that.
 
 MJOLNIR3 depends on the following dependencies, which must be installed in the system and properly working:
 
@@ -19,47 +17,32 @@ MJOLNIR3 depends on the following dependencies, which must be installed in the s
   This is the new version of the Obitools 2 ([Boyer et al. 2016](https://onlinelibrary.wiley.com/doi/10.1111/1755-0998.12428)) \
   Original information about OBITools here: https://metabarcoding.org/obitools3 \
   Help on installing OBITools: http://rleca.pbworks.com/w/file/fetch/124098201/tuto_obitools_install_W10OS.html \
-  If this does not work for you, The following set of commands would work in most systems for installing OBITools 2, based on recommendations by Frederic Boyer (https://www.biostars.org/p/235898/)
 
-      sudo apt install python2
-      sudo pip install virtualenv
-      mkdir ~/OBI
-      cd ~/OBI 
-      virtualenv --python=python2 OBI-env
-      source ~/OBI/OBI-env/bin/activate
-      sudo apt-get install python-dev
-      pip install sphinx==1.4.8 cython docutils==0.16
-      wget "https://git.metabarcoding.org/obitools/obitools/repository/archive.tar.gz?ref=master"
-      tar -zxvf "archive.tar.gz?ref=master"
-      cd obitools-master-*
-      python2 setup.py build
-      python2 setup.py install
-      export PATH=${PATH}:"~/OBI/OBI-env/bin"
-
-  It is a good idea to permanently add the OBI-env directory to the path, so there is no need to activate the OBI environment everytime. To do so, you can edit the .bashrc file in your home folder with any text editor (such as nano or vim) and add the following line:
+- VSEARCH ([Rognes et al. 2016](https://peerj.com/articles/2584/)) \
+  Help on installing VSEARCH: 
+  https://github.com/torognes/vsearch
   
-      export PATH=$PATH:~/OBI/OBI-env/bin
-      
-  Note that OBITools currently runs on Python 2.7. It is not working in Python 3. So Python 2.7 is required for the instalation. Also OBITools will not work if the last version of sphinx is installed in the system. An old version of sphinx needs to be installed (hence the line "pip install sphinx==1.4.8 " in the previous commands,  
-
-- VSEARCH (Rognes et al. 2016): 
-  Help on installing VSEARCH: https://github.com/torognes/vsearch
+- SWARM v2.0 or newer ([Mahé et al. 2015](https://peerj.com/articles/1420/)) \
+  Help on installing SWARM: 
+  https://github.com/torognes/swarm
   
-- SWARM v2.0 or newer (Mahé et al. 2015):
-  Help on installing SWARM: https://github.com/torognes/swarm
-  
-- LULU (Frøslev et al. 2017):
+- LULU ([Frøslev et al. 2017]()) \
   Help on installing LULU:
   https://github.com/tobiasgf/lulu
 
-- Package Biostrings from the Bioconductor suite. https://bioconductor.org/packages/release/bioc/html/Biostrings.html 
-  To install Biostrings, type the following commands in the R console:
- 
-      if (!requireNamespace("BiocManager", quietly = TRUE))  install.packages("BiocManager")
-      BiocManager::install("Biostrings")
-                  
+- Package Biostrings from the Bioconductor suite. \
+  Help on installing Biostrings:
+  https://bioconductor.org/packages/release/bioc/html/Biostrings.html
+                   
+## WARNING!! This From here and below, the README.md file is not updated. Please do not take this into account!
 
 Installing MJOLNIR3:
+
+Environments: MJOLNIR3 is highly recommended to be run in python environments. Python3.6 or higher is required but the user can choose its best option.
+
+options: 
+[venv](https://docs.python.org/3/library/venv.html) (sudo required to install it)
+
 
 1. If the devtools library is properly installed in the system: MJOLNIR3 can be installed directly from the R console using:
  
