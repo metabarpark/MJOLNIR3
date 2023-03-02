@@ -22,6 +22,10 @@ MJOLNIR3 depends on the following dependencies, which must be installed in the s
   Help on installing VSEARCH: 
   https://github.com/torognes/vsearch
   
+- DnoisE ([Antich et al. 2022](https://peerj.com/articles/12758/)) \
+  Help on installing DnoisE: 
+  https://github.com/adriantich/DnoisE
+  
 - SWARM v2.0 or newer ([Mahé et al. 2015](https://peerj.com/articles/1420/)) \
   Help on installing SWARM: 
   https://github.com/torognes/swarm
@@ -34,25 +38,39 @@ MJOLNIR3 depends on the following dependencies, which must be installed in the s
   Help on installing Biostrings:
   https://bioconductor.org/packages/release/bioc/html/Biostrings.html
                    
-## WARNING!! This From here and below, the README.md file is not updated. Please do not take this into account!
 
-Installing MJOLNIR3:
+### Installing MJOLNIR3:
 
-Environments: MJOLNIR3 is highly recommended to be run in python environments. Python3.6 or higher is required but the user can choose its best option.
+1. Create and activate a virtual environments: MJOLNIR3 is highly recommended to be run in python environments. Python3.6 or higher is required but the user can choose its best option. Options: 
+  
+- [venv](https://docs.python.org/3/library/venv.html) (sudo required to install it) 
 
-options: 
-[venv](https://docs.python.org/3/library/venv.html) (sudo required to install it)
+- [pyen](https://github.com/pyenv/pyenv)
 
+- conda ([Anaconda](https://docs.anaconda.com/anaconda/install/index.html) or [miniconda](https://docs.conda.io/en/latest/miniconda.html))
 
-1. If the devtools library is properly installed in the system: MJOLNIR3 can be installed directly from the R console using:
- 
+2. Install dependencies with the virtual environment activated. With the Conda environment some of the software can be installed from conda repositories.
+
+3. Install MJOLNIR3 \
+* If the devtools library is properly installed in the system: MJOLNIR3 can be installed directly from the R console using: 
+
         library(devtools)
-        install_github("metabarpark/MJOLNIR3")
-   
-2. If the devtools library is not installed, then MJOLNIR3 can be downloaded as a package from this link: https://github.com/metabarpark/MJOLNIR3/archive/main.zip
+        install_github("metabarpark/MJOLNIR3") 
+* If the devtools library is not installed: 
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MJOLNIR3 can be downloaded as a package from this link: https://github.com/metabarpark/MJOLNIR3/archive/main.zip.
 Then the file must be unzipped and MJOLNIR3 can be installed offline from the R console using:
 
         install.packages("MJOLNIR3-main", repos=NULL)
+        
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Another option is to clone with git the MJOLNIR3 repository: 
+
+        git clone https://github.com/metabarpark/MJOLNIR3.git
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; and then install the package from R:
+
+        > install.packages("MJOLNIR3-main", repos=NULL)
+
+## WARNING!! From here and below, the README.md file is not updated. Please do not take this into account, we are working on it!
 
 MJOLNIR3 is currently optimized by default to process COI metabarcoding data (the Leray Fragment). For other metabarcoding markers, some settings must be changed as follows:
 
