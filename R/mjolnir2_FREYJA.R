@@ -74,7 +74,16 @@ mjolnir2_FREYJA <- function(lib_prefix="",cores=1,Lmin=299,Lmax=320,lib=NULL, fa
   clust <- makeCluster(no_cores)
   clusterExport(clust, list("X","old_path","obipath"),envir = environment())
   clusterEvalQ(clust, {Sys.setenv(PATH = paste(old_path, obipath, sep = ":"))})
-  parLapply(clust,X, function(x) system(x,intern=T,wait=T))
+  nu_sets <- ceiling(length(X)/no_cores)
+  for (set_i in 1:nu_sets) {
+    from <- (set_i-1)*no_cores + 1
+    if (set_i == nu_sets) {
+      to <- length(X)
+    } else {
+      to <- (set_i)*no_cores
+    }
+    parLapply(clust,X[from:to], function(x) system(x,intern=T,wait=T))
+  }
   stopCluster(clust)
   # If not demultiplexed, then join all parts into a joined file and then split it into samples
   if (!demultiplexed){
