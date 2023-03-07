@@ -85,7 +85,7 @@ mjolnir2_FREYJA <- function(lib_prefix="",cores=1,Lmin=299,Lmax=320,lib="", fast
     # here the concatenated file is split into different samples
     system(paste0("obi split -t \"sample\" -p ",lib,"_ ",lib,"_FREYJA/concatenated"),intern=T,wait=T)
     # in order to make the next steps parallelizable it is nesary to export each file into a new dms
-    files <- system(paste0("obi ls ",lib,"_FREYJA | cut -f1 -d ':' | cut -f4 -d ' '"),intern=T,wait=T)
+    files <- system(paste0("obi ls ",lib,"_FREYJA | cut -f1 -d ':' | cut -f4 -d ' ' | grep 'sample' "),intern=T,wait=T)
     files <- files[grep(lib,files)]
     for (file in files) {
       system(paste0("obi cat -c ",
