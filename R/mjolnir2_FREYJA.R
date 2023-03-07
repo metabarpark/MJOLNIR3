@@ -8,7 +8,7 @@
 # When demultiplexed=TRUE, you must also specify the primer_F and primer_R sequences in the options input to FREYJA. COI Leray-XT primers are specified by default.
 # Otherwise, when demultiplexed=FALSE, the primers information must be already written in the LIBX_ngsfilter.tsv files.
 
-mjolnir2_FREYJA <- function(lib_prefix="",cores=1,Lmin=299,Lmax=320,lib="", fasta_output=F,fastq_output=T,score_obialign=40,
+mjolnir2_FREYJA <- function(lib_prefix="",cores=1,Lmin=299,Lmax=320,lib=NULL, fasta_output=F,fastq_output=T,score_obialign=40,
                             demultiplexed=F,primer_F="GGWACWRGWTGRACWNTNTAYCCYCC",primer_R="TANACYTCNGGRTGNCCRAARAAYCA",
                             R1_motif="_R1",R2_motif="_R2",obipath=NULL,remove_DMS=T){
 
@@ -19,6 +19,10 @@ mjolnir2_FREYJA <- function(lib_prefix="",cores=1,Lmin=299,Lmax=320,lib="", fast
   if (is.null(obipath)) obipath <- "~/obi3-env/bin/"
   obipath <- path.expand(obipath)
   Sys.setenv(PATH = paste(old_path, path.expand(obipath), sep = ":"))
+  if (lib == NULL) {
+    message("lib can not be NULL, otherwise HELA won't find the files")
+    exit()
+  }
 
   X <- NULL
   libslist <- NULL
