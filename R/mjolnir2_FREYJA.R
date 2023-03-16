@@ -114,8 +114,15 @@ mjolnir2_FREYJA <- function(lib_prefix="",cores=1,Lmin=299,Lmax=320,lib=NULL, fa
   files <- files[grepl("sample",files)&grepl("FREYJA.obidms",files)]
   files <- gsub("./","",gsub(".obidms","",files))
   X <- NULL
+  if (fastq_output) {
+    print("Exporting fastq files and dereplicating, this could take a while")
+    
+  }
   for (file in files) {
-    X <- c(X,paste0("obi uniq ",file,"/filtered_seqs ",file,"/uniq ; ",
+    X <- c(X,paste0(ifelse(fastq_output,paste0("obi export --fastq-output ",
+                                               file,"/filtered_seqs > ",
+                                               file,".fastq ;"), ""),
+                    "obi uniq ",file,"/filtered_seqs ",file,"/uniq ; ",
                     "obi export --fasta-output --only-keys \"COUNT\" ",file,"/uniq > ",file,"_uniq.fasta ; ",
                     "sed -i 's/COUNT/size/g' ",file,"_uniq.fasta ; ",
                     "sed -i 's/;//g' ",file,"_uniq.fasta ; ",
@@ -143,27 +150,18 @@ mjolnir2_FREYJA <- function(lib_prefix="",cores=1,Lmin=299,Lmax=320,lib=NULL, fa
   save(file = "summary_FREYJA.RData",list = c("before_FREYJA","after_FREYJA","variables_FREYJA"))
 
   # if required, export to fasta or fastq. These options is to return the files without joining amplicons with obi uniq
-  if (fasta_output | fastq_output) {
+  if (fasta_output) {
     files <- list.dirs(recursive = F)
     files <- files[grepl("sample",files)&grepl("FREYJA.obidms",files)]
     files <- gsub("./","",gsub(".obidms","",files))
     X <- NULL
-    if (fasta_output) {
-      print("Exporting fasta files, this could take a while.")
-      for (file in files) {
-        X <- c(X,paste0("obi export --fasta-output ",
-                        file,"/filtered_seqs > ",
-                        file,".fasta "))
-      }
+    print("Exporting fasta files, this could take a while.")
+    for (file in files) {
+      X <- c(X,paste0("obi export --fasta-output ",
+                      file,"/filtered_seqs > ",
+                      file,".fasta "))
     }
-    if (fastq_output) {
-      print("Exporting fastq files, this could take a while")
-      for (file in files) {
-        X <- c(X,paste0("obi export --fastq-output ",
-                        file,"/filtered_seqs > ",
-                        file,".fastq "))
-      }
-    }
+    
     clust <- makeCluster(no_cores)
     clusterExport(clust, list("X","old_path","obipath"),envir = environment())
     clusterEvalQ(clust, {Sys.setenv(PATH = paste(old_path, obipath, sep = ":"))})
