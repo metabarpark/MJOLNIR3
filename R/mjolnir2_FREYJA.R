@@ -19,7 +19,7 @@ mjolnir2_FREYJA <- function(lib_prefix="",cores=1,Lmin=299,Lmax=320,lib=NULL, fa
   if (is.null(obipath)) obipath <- "~/obi3-env/bin/"
   obipath <- path.expand(obipath)
   Sys.setenv(PATH = paste(old_path, path.expand(obipath), sep = ":"))
-  if (lib == NULL) {
+  if (is.null(lib)) {
     message("lib can not be NULL, otherwise HELA won't find the files")
     exit()
   }
