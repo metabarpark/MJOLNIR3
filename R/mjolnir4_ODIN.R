@@ -78,7 +78,7 @@ mjolnir4_ODIN <- function(lib,cores,d=13,min_reads_MOTU=2,min_reads_ESV=2,alpha=
             system(paste0("cp ",file,"_HELA_nonchimeras.fasta ",file,"_ODIN_denoised_ratio_d.fasta "),intern = T, wait = T)
           }
         } else {
-          if (entropy==F) {
+          if (is.logical(entropy)) {
             entropy <- ""
           } else if(entropy[1]=="auto_sample") {
             entropy <- paste0(" -y -m ",entropy[2])
@@ -336,7 +336,7 @@ mjolnir4_ODIN <- function(lib,cores,d=13,min_reads_MOTU=2,min_reads_ESV=2,alpha=
         entropies  <- read.csv(paste0(outfile_ESV,"_entropy_values.csv"))
         entropy <- c(entropies[1,4:6],entropies[1,1])
       }
-      if (entropy==F) {
+      if (is.logical(entropy)) {
         entropy <- ""
       } else {
         entropy <- paste0(" -y -e ",paste0(entropy[1:3],collapse = ",")," -m ",entropy[4])
