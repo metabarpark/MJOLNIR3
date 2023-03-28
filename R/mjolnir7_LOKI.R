@@ -67,7 +67,7 @@ mjolnir7_LOKI <- function(lib,min_id = .84, vsearchpath = NULL){
 
   save(file = "summary_LOKI.RData",list = c("num_discarded","otus_discarded"))
 
-  message("LOKI is done. He kept ",nrow(curated_db)," MOTUs in the curated database, which He stored in file: ",paste0(lib,"_Curated_LULU.tsv"))
-  message("LOKI discarded ",nrow(discarded_db)," MOTUs, which He stored in file: ",paste0(lib,"_Discarded_LULU.tsv"))
-  message("LOKI stored the fate of the discarded MOTUs in file: ",paste0(lib,"_Deleted_LULU_fate.tsv"))
+  message("LOKI is done. He kept ",nrow(curated_db)," MOTUs in the curated database, which He stored in file: ",paste0(lib,"_LOKI_Curated.tsv"))
+  message("LOKI discarded ",nrow(discarded_db)," MOTUs, which He stored in file: ",paste0(lib,"_LOKI_Discarded.tsv"))
+  message("LOKI stored the fate of the discarded MOTUs in file: ",paste0(lib,"_LOKI_Discarded.tsv"))
 }
