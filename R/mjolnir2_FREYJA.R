@@ -8,7 +8,7 @@
 # When demultiplexed=TRUE, you must also specify the primer_F and primer_R sequences in the options input to FREYJA. COI Leray-XT primers are specified by default.
 # Otherwise, when demultiplexed=FALSE, the primers information must be already written in the LIBX_ngsfilter.tsv files.
 
-mjolnir2_FREYJA <- function(lib_prefix="",cores=1,Lmin=299,Lmax=320,lib="", fasta_output=F,fastq_output=T,score_obialign=40,
+mjolnir2_FREYJA <- function(lib_prefix="",cores=1,Lmin=299,Lmax=320,lib=NULL, fasta_output=F,fastq_output=T,score_obialign=40,
                             demultiplexed=F,primer_F="GGWACWRGWTGRACWNTNTAYCCYCC",primer_R="TANACYTCNGGRTGNCCRAARAAYCA",
                             R1_motif="_R1",R2_motif="_R2",obipath=NULL,remove_DMS=T){
 
@@ -19,6 +19,10 @@ mjolnir2_FREYJA <- function(lib_prefix="",cores=1,Lmin=299,Lmax=320,lib="", fast
   if (is.null(obipath)) obipath <- "~/obi3-env/bin/"
   obipath <- path.expand(obipath)
   Sys.setenv(PATH = paste(old_path, path.expand(obipath), sep = ":"))
+  if (is.null(lib)) {
+    message("lib can not be NULL, otherwise HELA won't find the files")
+    exit()
+  }
 
   X <- NULL
   libslist <- NULL
@@ -70,7 +74,16 @@ mjolnir2_FREYJA <- function(lib_prefix="",cores=1,Lmin=299,Lmax=320,lib="", fast
   clust <- makeCluster(no_cores)
   clusterExport(clust, list("X","old_path","obipath"),envir = environment())
   clusterEvalQ(clust, {Sys.setenv(PATH = paste(old_path, obipath, sep = ":"))})
-  parLapply(clust,X, function(x) system(x,intern=T,wait=T))
+  nu_sets <- ceiling(length(X)/no_cores)
+  for (set_i in 1:nu_sets) {
+    from <- (set_i-1)*no_cores + 1
+    if (set_i == nu_sets) {
+      to <- length(X)
+    } else {
+      to <- (set_i)*no_cores
+    }
+    parLapply(clust,X[from:to], function(x) system(x,intern=T,wait=T))
+  }
   stopCluster(clust)
   # If not demultiplexed, then join all parts into a joined file and then split it into samples
   if (!demultiplexed){
@@ -85,7 +98,7 @@ mjolnir2_FREYJA <- function(lib_prefix="",cores=1,Lmin=299,Lmax=320,lib="", fast
     # here the concatenated file is split into different samples
     system(paste0("obi split -t \"sample\" -p ",lib,"_ ",lib,"_FREYJA/concatenated"),intern=T,wait=T)
     # in order to make the next steps parallelizable it is nesary to export each file into a new dms
-    files <- system(paste0("obi ls ",lib,"_FREYJA | cut -f1 -d ':' | cut -f4 -d ' '"),intern=T,wait=T)
+    files <- system(paste0("obi ls ",lib,"_FREYJA | cut -f1 -d ':' | cut -f4 -d ' ' | grep 'sample' "),intern=T,wait=T)
     files <- files[grep(lib,files)]
     for (file in files) {
       system(paste0("obi cat -c ",
@@ -101,8 +114,15 @@ mjolnir2_FREYJA <- function(lib_prefix="",cores=1,Lmin=299,Lmax=320,lib="", fast
   files <- files[grepl("sample",files)&grepl("FREYJA.obidms",files)]
   files <- gsub("./","",gsub(".obidms","",files))
   X <- NULL
+  if (fastq_output) {
+    print("Exporting fastq files and dereplicating, this could take a while")
+    
+  }
   for (file in files) {
-    X <- c(X,paste0("obi uniq ",file,"/filtered_seqs ",file,"/uniq ; ",
+    X <- c(X,paste0(ifelse(fastq_output,paste0("obi export --fastq-output ",
+                                               file,"/filtered_seqs > ",
+                                               file,".fastq ;"), ""),
+                    "obi uniq ",file,"/filtered_seqs ",file,"/uniq ; ",
                     "obi export --fasta-output --only-keys \"COUNT\" ",file,"/uniq > ",file,"_uniq.fasta ; ",
                     "sed -i 's/COUNT/size/g' ",file,"_uniq.fasta ; ",
                     "sed -i 's/;//g' ",file,"_uniq.fasta ; ",
@@ -130,27 +150,18 @@ mjolnir2_FREYJA <- function(lib_prefix="",cores=1,Lmin=299,Lmax=320,lib="", fast
   save(file = "summary_FREYJA.RData",list = c("before_FREYJA","after_FREYJA","variables_FREYJA"))
 
   # if required, export to fasta or fastq. These options is to return the files without joining amplicons with obi uniq
-  if (fasta_output | fastq_output) {
+  if (fasta_output) {
     files <- list.dirs(recursive = F)
     files <- files[grepl("sample",files)&grepl("FREYJA.obidms",files)]
     files <- gsub("./","",gsub(".obidms","",files))
     X <- NULL
-    if (fasta_output) {
-      print("Exporting fasta files, this could take a while.")
-      for (file in files) {
-        X <- c(X,paste0("obi export --fasta-output ",
-                        file,"/filtered_seqs > ",
-                        file,".fasta "))
-      }
+    print("Exporting fasta files, this could take a while.")
+    for (file in files) {
+      X <- c(X,paste0("obi export --fasta-output ",
+                      file,"/filtered_seqs > ",
+                      file,".fasta "))
     }
-    if (fastq_output) {
-      print("Exporting fastq files, this could take a while")
-      for (file in files) {
-        X <- c(X,paste0("obi export --fastq-output ",
-                        file,"/filtered_seqs > ",
-                        file,".fastq "))
-      }
-    }
+    
     clust <- makeCluster(no_cores)
     clusterExport(clust, list("X","old_path","obipath"),envir = environment())
     clusterEvalQ(clust, {Sys.setenv(PATH = paste(old_path, obipath, sep = ":"))})

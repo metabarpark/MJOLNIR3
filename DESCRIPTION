@@ -7,7 +7,7 @@ Maintainer: Owen S. Wangensteen <owenwangensteen@gmail.com>
 Maintainer: Adrià Antich <adriantich@gmail.com>
 Description: MJOLNIR Metabarcoding Joining Obitools & Linkage Networks In R
     A pipeline for processing metabarcoding data including:
-    - Quality filtering with OBItools
+    - Quality filtering with OBItools3
     - Chimaera removal with uchime_denovo
     - Denoising with DnoisE
     - MOTU clustering with swarm
