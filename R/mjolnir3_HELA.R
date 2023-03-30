@@ -1,11 +1,50 @@
-# HELA: Hierarchical Elimination of Lurking Artifacts
+#' HELA: Hierarchical Elimination of Lurking Artifacts
+#' 
+#' This function uses the uchime_denovo algorithm implemented in VSEARCH to 
+#' remove chimaeric sequences from the dataset. 
+#' 
+#' @details 
+#' HELA works in a sample-by-sample basis. HELA will process all 
+#' individual fasta files in the current folder 
+#' matching the pattern EXPX_XXXX_sample_XXX.fasta being EXPX the acronym set 
+#' by lib parameter. This allows for parallel 
+#' computing, significantly decreasing calculation times. 
+#' 
+#' @param lib Character string. Acronym for the experiment. This
+#' acronym must be of 4 characters in capital letters. Do not mix up library and
+#' experiment acronyms. However they can be the same.
+#' 
+#' @param cores Numeric. Number of threads for parallel processing.
+#' 
+#' @param vsearchpath Character string specifying the PATH to the vsearch package.
+#' 
+#' @examples 
+#' library(mjolnir)
+#' 
+#' # Define input fastq files (only names of R1 files are needed)
+#' R1_filenames <-c("ULO1_R1.fastq.gz","ULO2_R1.fastq.gz","ULO3_R1.fastq.gz","ULO4_R1.fastq.gz")
+#' 
+#' # Input identifiers for the individual libraries to be used. It should be a 4-character name, matching the information in the ngsfilter files
+#' lib_prefixes <- c("ULO1","ULO2","ULO3","ULO4")
+#' 
+#' # Enter number of cores to be used in parallel. 
+#' cores <- 7
+#' 
+#' # Run RAN
+#' mjolnir1_RAN(R1_filenames,cores,lib_prefixes,R1_motif="_R1",R2_motif="_R2")
+#' 
+#' # set experiment acronym
+#' lib <- "ULOY"
+#' 
+#' # Run FREYJA
+#' mjolnir2_FREYJA(lib_prefix = lib_prefixes,lib = lib,cores = cores,Lmin=299,Lmax=320)
+#' 
+#' # set the maximum number of cores possible
+#' cores <- 16
+#' 
+#' # Run HELA
+#' mjolnir3_HELA(lib,cores)
 
-# This function uses the uchime_denovo algorithm implemented in VSEARCH to remove chimaeric sequences from the dataset.
-# HELA works in a sample-by-sample basis. HELA will process all individual fasta files in the current folder matching the pattern XXXX_sample_XXX.fasta.
-# This allows for parallel computing, significantly decreasing calculation times.
-# HELA can optionally remove singleton sequences (default: remove_singletons=T), so that the computing time for clustering with ODIN will be considerably reduced.
-# This is possibly a good idea for very large datasets (with > 5 million unique sequences before clustering)
-# The final dataset output is in VSEARCH format, so it can be directly fed into SWARM (ODIN).
 
 mjolnir3_HELA <- function(lib, cores, vsearchpath = NULL){
 

@@ -1,9 +1,72 @@
-# THOR: Taxonomy with Higher-than-Order Ranks
-# This is a wrapper of ecotag
-# After assignment with ecotag, higher taxa at ranks higher than order are added from custom CSV files.
-# THOR replaces owi_add_taxonomy
+#' THOR: Taxonomy with Higher-than-Order Ranks
+#'
+#' This is a wrapper of ecotag
+#'
+#' @details 
+#' After assignment with ecotag, higher taxa at ranks higher than order are added from custom CSV files.
+#' 
+#' The database used can be download or build using the NJORDR package (see https://github.com/adriantich/NJORDR-MJOLNIR3)
+#' 
+#' @param lib Character string. Acronym for the experiment. This
+#' acronym must be of 4 characters in capital letters. Do not mix up library and
+#' experiment acronyms. However they can be the same.
+#' 
+#' @param cores Numeric. Number of threads for parallel processing.
+#' 
+#' @param tax_dir String specifying de PATH to the directory were the taxonomic 
+#' information is stored
+#' 
+#' @param tax_dms_name Character string specifying the name of the obidms object
+#' without the ".obidms" extension. 
+#' 
+#' @param obipath Character string specifying the PATH to the obi binary.
+#' 
+#' @param run_ecotag Logical. Whether to run (TRUE, default) the ecotag taxonomic
+#' assignment or not (FALSE). The latter could take place when alternative taxonomic
+#' assignament software is applied but adding higher taxonomic ranks is desired.
+#' 
+#' @param remove_DMS Logical. If TRUE, it will delete all obidms objects that are
+#' created during the process. This can save a lot of hard disk space. The FALSE 
+#' option is useful for developing and debugging.
+#' 
+#' @examples 
+#' library(mjolnir)
+#' 
+#' # Define input fastq files (only names of R1 files are needed)
+#' R1_filenames <-c("ULO1_R1.fastq.gz","ULO2_R1.fastq.gz","ULO3_R1.fastq.gz","ULO4_R1.fastq.gz")
+#' 
+#' # Input identifiers for the individual libraries to be used. It should be a 4-character name, matching the information in the ngsfilter files
+#' lib_prefixes <- c("ULO1","ULO2","ULO3","ULO4")
+#' 
+#' # Enter number of cores to be used in parallel. 
+#' cores <- 7
+#' 
+#' # Run RAN
+#' mjolnir1_RAN(R1_filenames,cores,lib_prefixes,R1_motif="_R1",R2_motif="_R2")
+#' 
+#' # set experiment acronym
+#' lib <- "ULOY"
+#' 
+#' # Run FREYJA
+#' mjolnir2_FREYJA(lib_prefix = lib_prefixes,lib = lib,cores = cores,Lmin=299,Lmax=320)
+#' 
+#' # set the maximum number of cores possible
+#' cores <- 16
+#' 
+#' # Run HELA
+#' mjolnir3_HELA(lib,cores)
+#' 
+#' # Run ODIN
+#' mjolnir4_ODIN(lib,cores,d=13,min_reads_MOTU=2,min_reads_ESV=2,alpha=5,entropy=c(0.47,0.23,1.02,313), algorithm="DnoisE_SWARM", remove_singletons = TRUE)
+#' 
+#' # set the directory where the database is stored
+#' tax_dir <- "~/taxo_NCBI/"
+#' tax_dms_name <- "DUFA_COI"
+#' 
+#' # Run THOR
+#' mjolnir5_THOR(lib, cores, tax_dir=tax_dir, tax_dms_name=tax_dms_name, run_ecotag=T)
 
-mjolnir5_THOR <- function(lib,cores,tax_dir,tax_dms_name=NULL,ref_db=NULL,obipath="",run_ecotag=T,remove_DMS=T){
+mjolnir5_THOR <- function(lib,cores,tax_dir,tax_dms_name=NULL,obipath="",run_ecotag=T,remove_DMS=T){
 
   old_path <- Sys.getenv("PATH")
   if (is.null(obipath)) obipath <- "~/obi3-env/bin/"
@@ -14,13 +77,15 @@ mjolnir5_THOR <- function(lib,cores,tax_dir,tax_dms_name=NULL,ref_db=NULL,obipat
     message("THOR will assign the taxonomy to the order level with ecotag.")
 
     if (is.null(tax_dms_name)) {
-      system(paste0("obi import ",tax_dir,"/",ref_db," ",lib, "_THOR_taxo/ref_seqs ; ",
-                    "obi import --taxdump ",tax_dir,"/",tax_db," ",lib, "_THOR_taxo/taxonomy/my_tax ; ",
-                    "obi grep --require-rank=species --require-rank=genus --require-rank=family --taxonomy ",lib, "_THOR_taxo/taxonomy/my_tax ",lib, "_THOR_taxo/ref_seqs ",lib, "_THOR_taxo/ref_seqs_clean ; ",
-                    "obi uniq --taxonomy ",lib, "_THOR_taxo/taxonomy/my_tax ",lib, "_THOR_taxo/ref_seqs_clean ",lib, "_THOR_taxo/ref_seqs_uniq ; ",
-                    "obi build_ref_db -t 0.95 --taxonomy ",lib, "_THOR_taxo/taxonomy/my_tax ",lib, "_THOR_taxo/ref_seqs_uniq ",lib, "_THOR_taxo/ref_db "),
-             intern = T, wait = T)
-      tax_dms_name <- paste0(lib, "_THOR_taxo")
+      message("obidms with taxonomic database is required")
+      exit()
+      # system(paste0("obi import ",tax_dir,"/",ref_db," ",lib, "_THOR_taxo/ref_seqs ; ",
+      #               "obi import --taxdump ",tax_dir,"/",tax_db," ",lib, "_THOR_taxo/taxonomy/my_tax ; ",
+      #               "obi grep --require-rank=species --require-rank=genus --require-rank=family --taxonomy ",lib, "_THOR_taxo/taxonomy/my_tax ",lib, "_THOR_taxo/ref_seqs ",lib, "_THOR_taxo/ref_seqs_clean ; ",
+      #               "obi uniq --taxonomy ",lib, "_THOR_taxo/taxonomy/my_tax ",lib, "_THOR_taxo/ref_seqs_clean ",lib, "_THOR_taxo/ref_seqs_uniq ; ",
+      #               "obi build_ref_db -t 0.95 --taxonomy ",lib, "_THOR_taxo/taxonomy/my_tax ",lib, "_THOR_taxo/ref_seqs_uniq ",lib, "_THOR_taxo/ref_db "),
+      #        intern = T, wait = T)
+      # tax_dms_name <- paste0(lib, "_THOR_taxo")
     }
 
     # it is necessary to run ecotag within a new directory for each part.
