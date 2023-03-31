@@ -1,6 +1,43 @@
-# RAN: Reads Allotment in N portions
-# This function will prepare the FASTQ raw data for parallel processing.
-# RAN will be run only if your data consist of multiplexed libraries, which will be split into aliquote parts, to be processed by FREYJA.
+#' RAN: Reads Allotment in N portions
+#' 
+#' RAN function will prepare the FASTQ raw data for parallel processing.
+#' 
+#' @details 
+#' RAN will be run only if your data consist of multiplexed libraries, 
+#' which will be split into aliquote parts, to be processed by FREYJA. Until 
+#' further optimization, please do not set more than 7 cores for the parallel
+#' processing of the next step, FREYJA.
+#' 
+#' @param R1_filenames Character vector with the names of the forward fastq or 
+#' fastq.gz files.
+#' 
+#' @param cores Numeric. Number of parts into which the input files will be split
+#' for the parallel processing of the FREYJA function.
+#' 
+#' @param lib_prefixes Character vector. Acronym for each sequencing library. This
+#' acronym must be of 4 characters in capital letters. Do not mix up library and
+#' experiment acronyms. The latter will be required in following steps. However 
+#' they can be the same.
+#' 
+#' @param R1_motif Character string that distinguish the forward line file from
+#' the reverse.
+#' 
+#' @param R2_motif Character string that distinguish the reverse line file from
+#' the forward.
+#' 
+#' @examples 
+#' library(mjolnir)
+#' 
+#' # Define input fastq files (only names of R1 files are needed)
+#' R1_filenames <-c("ULO1_R1.fastq.gz","ULO2_R1.fastq.gz","ULO3_R1.fastq.gz","ULO4_R1.fastq.gz")
+#' 
+#' # Input identifiers for the individual libraries to be used. It should be a 4-character name, matching the information in the ngsfilter files
+#' lib_prefixes <- c("ULO1","ULO2","ULO3","ULO4")
+#' 
+#' # Enter number of cores to be used in parallel. 
+#' cores <- 7
+#' 
+#' mjolnir1_RAN(R1_filenames,cores,lib_prefixes,R1_motif="_R1",R2_motif="_R2")
 
 mjolnir1_RAN <- function(R1_filenames="",cores=1,lib_prefixes="",R1_motif="_R1",R2_motif="_R2"){
 
