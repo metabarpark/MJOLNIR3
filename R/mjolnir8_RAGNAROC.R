@@ -66,7 +66,8 @@
 #' 
 #' @param remove_numts Logical whether to apply the NUMT filter (TRUE) or not (FALSE)
 #' 
-#' @param cores Numeric. Number of threads for parallel processing.
+#' @param cores Numeric. Number of threads for parallel processing during NUMT 
+#' removal.
 #' 
 #' @param blank_relative Relative abundance threshold for a unit to be removed if the 
 #' total abundance in the blank/neg/control is higher than this value in terms of

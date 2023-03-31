@@ -66,7 +66,8 @@ in the "blank_col"}
 
 \item{remove_numts}{Logical whether to apply the NUMT filter (TRUE) or not (FALSE)}
 
-\item{cores}{Numeric. Number of threads for parallel processing.}
+\item{cores}{Numeric. Number of threads for parallel processing during NUMT 
+removal.}
 
 \item{blank_relative}{Relative abundance threshold for a unit to be removed if the 
 total abundance in the blank/neg/control is higher than this value in terms of
