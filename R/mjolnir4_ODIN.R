@@ -146,10 +146,10 @@ mjolnir4_ODIN <- function(lib,cores,d=13,min_reads_MOTU=2,min_reads_ESV=2,alpha=
   dnoise_path <- path.expand(dnoise_path)
   if (is.null(swarmpath)) swarmpath <- "~/swarm/bin/"
   swarmpath <- path.expand(swarmpath)
-  swarm <- paste0(swarmpath,"/swarm")
+  swarm <- paste0(swarmpath,"swarm")
   if (is.null(obipath)) obipath <- "~/obi3-env/bin/"
   obipath <- path.expand(obipath)
-  dnoise <- paste0("python3 ", dnoise_path, "/DnoisE.py") # Change this to where the Dnoise executable is
+  dnoise <- paste0("python3 ", dnoise_path, "DnoisE.py") # Change this to where the Dnoise executable is
   old_path <- Sys.getenv("PATH")
   Sys.setenv(PATH = paste(python_packages,old_path, obipath, dnoise_path, sep = ":"))
 
