@@ -200,11 +200,11 @@ mjolnir4_ODIN <- function(lib,cores,d=13,min_reads_MOTU=2,min_reads_ESV=2,alpha=
           }
         } else {
           if (is.logical(entropy)) {
-            entropy <- ""
+            entropy_file <- ""
           } else if(entropy[1]=="auto_sample") {
-            entropy <- paste0(" -y -m ",entropy[2])
+            entropy_file <- paste0(" -y -m ",entropy[2])
           } else {
-            entropy <- paste0(" -y -e ",paste0(entropy[1:3],collapse = ",")," -m ",entropy[4])
+            entropy_file <- paste0(" -y -e ",paste0(entropy[1:3],collapse = ",")," -m ",entropy[4])
           }
 
           if (run_entropy) {
@@ -214,7 +214,7 @@ mjolnir4_ODIN <- function(lib,cores,d=13,min_reads_MOTU=2,min_reads_ESV=2,alpha=
             #                "-a ",alpha," -c ",cores,entropy," -r ",min_reads_ESV))
             system(paste0(dnoise," --fasta_input ",file,"_HELA_nonchimeras.fasta ",
                           "--fasta_output ",file,"_ODIN ",
-                          "-a ",alpha," -c ",cores,entropy," -r ",min_reads_ESV),intern = T, wait = T)
+                          "-a ",alpha," -c ",cores,entropy_file," -r ",min_reads_ESV),intern = T, wait = T)
           } else  {
             message(paste("ODIN will denoise",file))
             system(paste0(dnoise," --fasta_input ",file,"_HELA_nonchimeras.fasta ",
