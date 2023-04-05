@@ -94,7 +94,7 @@ mjolnir5_THOR <- function(lib,cores,tax_dir,tax_dms_name=NULL,obipath="",run_eco
     # run there the ecotag
     X <- NULL
     for (i in 1:cores) {
-      system(paste0("mkdir ",lib, "_THOR_",sprintf("%02d",i)," ; cp -r ",paste0(tax_dir,tax_dms_name,sep='/'),".obidms ",lib, "_THOR_",sprintf("%02d",i),"/. ; "),intern = T, wait = T)
+      system(paste0("mkdir ",lib, "_THOR_",sprintf("%02d",i)," ; cp -r ",tax_dir,"/",tax_dms_name,".obidms ",lib, "_THOR_",sprintf("%02d",i),"/. ; "),intern = T, wait = T)
       X <- c(X,paste0("cd ",lib, "_THOR_",sprintf("%02d",i)," ; ",
                       "obi import --fasta-input ../",lib,"_ODIN_part_",sprintf("%02d",i),".fasta ",tax_dms_name,"/seqs ; ",
                       # "obi import --fasta-input ",lib,"_ODIN_part_",sprintf("%02d",i),".fasta ",lib, "_THOR_",sprintf("%02d",i),"/seqs ; ",
