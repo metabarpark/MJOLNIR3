@@ -172,7 +172,7 @@ mjolnir8_RAGNAROC <- function(lib,metadata_table="",output_file="",output_file_E
     ESV_data_initial <- read.csv(paste0(lib,"_ODIN_ESV.tsv"), sep="\t",head=T,stringsAsFactors = F)
   }
   
-  print(print('point1',dim(db),colnames(db)))
+  print(paste('point1',dim(db),colnames(db)))
 
   # Remove bacteria
   if (remove_bacteria) {
@@ -180,7 +180,7 @@ mjolnir8_RAGNAROC <- function(lib,metadata_table="",output_file="",output_file_E
     bacteria_removed <- sum(db$superkingdom_name == "Prokaryota" | db$SCIENTIFIC_NAME == "root")
     db <- db[(db$superkingdom_name != "Prokaryota" & db$SCIENTIFIC_NAME != "root"),]
   }
-  print(print('point2',dim(db),colnames(db)))
+  print(paste('point2',dim(db),colnames(db)))
 
   # Remove contamination
   if (remove_contamination){
@@ -193,7 +193,7 @@ mjolnir8_RAGNAROC <- function(lib,metadata_table="",output_file="",output_file_E
                          (db$family_name %in% contamination) |
                          (db$genus_name %in% contamination)) ,]
   }
-  print(print('point3',dim(db),colnames(db)))
+  print(paste('point3',dim(db),colnames(db)))
 
   # Load the metadata_table
   if (metadata_table=="") metadata_table <- paste0(lib,"_metadata.tsv")
@@ -223,7 +223,7 @@ mjolnir8_RAGNAROC <- function(lib,metadata_table="",output_file="",output_file_E
   if (!ESV_within_MOTU) {
     neg_samples <- db[,sample_cols[grepl(paste0(sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)],collapse = "|"),new_sample_names)]]
   }
-  print(print('point4',dim(db),colnames(db)))
+  print(paste('point4',dim(db),colnames(db)))
 
   # remove negs and empties
   db <- db[,-sample_cols[grepl(paste0(sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)],collapse = "|"),new_sample_names)]]
@@ -234,7 +234,7 @@ mjolnir8_RAGNAROC <- function(lib,metadata_table="",output_file="",output_file_E
   sample_names <- sample_names[!grepl("EMPTY",sample_names)]
   sample_cols <- match(sample_names,colnames(db))
   
-  print(print('point5',dim(db),colnames(db)))
+  print(paste('point5',dim(db),colnames(db)))
   # same for ESVs
   if (ESV_within_MOTU) {
     # Select sample abundance columns
@@ -261,7 +261,7 @@ mjolnir8_RAGNAROC <- function(lib,metadata_table="",output_file="",output_file_E
   }
 
   # db[1,"09_12_M2_A_C"] <- 10000000000000
-  print(print('point6',dim(db),colnames(db)))
+  print(paste('point6',dim(db),colnames(db)))
   
   # Filter 1. remove any MOTU for which abundance in the blank or negative controls was higher than 10% of its total read abundance
   # remove blank and NEG samples
