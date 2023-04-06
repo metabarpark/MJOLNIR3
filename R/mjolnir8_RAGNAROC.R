@@ -207,21 +207,26 @@ mjolnir8_RAGNAROC <- function(lib,metadata_table="",output_file="",output_file_E
   initial_no_sample_cols <- length(sample_cols)
   sample_names <- names(db[sample_cols])
 
-  # Change agnomens by original names
+  # Change agnomens by original names 
+  # Those names that are not present in the metadata will be tagged as
+  # EMPTY and then removed
   new_sample_names <- sample_db$original_samples[match(sample_names,sample_db$mjolnir_agnomens)]
   new_sample_names[is.na(new_sample_names)] <- gsub("^","EMPTY",as.character(c(1:sum(is.na(new_sample_names)))))
   colnames(db)[sample_cols] <- new_sample_names
 
-  # get negatives/blanks
+  # get negatives/blanks from MOTUs if not ESV_within_MOTU so the filter will 
+  # be done with the ESV, not with MOTUs
   if (!ESV_within_MOTU) {
     neg_samples <- db[,sample_cols[grepl(paste0(sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)],collapse = "|"),new_sample_names)]]
   }
 
   # remove negs and empties
-  db <- db[,!grepl(paste(c(negatives,blank,"EMPTY"),collapse = "|"),colnames(db))]
+  db <- db[,-sample_cols[grepl(paste0(sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)],collapse = "|"),new_sample_names)]]
+  db <- db[,!grepl("EMPTY",colnames(db))]
 
   # correct sample identifiers
-  sample_names <- new_sample_names[!grepl(paste(c(negatives,blank,"EMPTY"),collapse = "|"),new_sample_names)]
+  sample_names <- new_sample_names[!grepl(paste0(sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)],collapse = "|"),new_sample_names)]
+  sample_names <- sample_names[!grepl("EMPTY",sample_names)]
   sample_cols <- match(sample_names,colnames(db))
 
   # same for ESVs
@@ -240,9 +245,11 @@ mjolnir8_RAGNAROC <- function(lib,metadata_table="",output_file="",output_file_E
     # remove neg samples
     if (dim(neg_samples)[2]>0) {
       # remove negs and empties
-      ESV_data_initial <- ESV_data_initial[,!grepl(paste(c(negatives,blank,"EMPTY"),collapse = "|"),colnames(ESV_data_initial))]
+      ESV_data_initial <- ESV_data_initial[,-sample_cols_ESV[grepl(paste0(sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)],collapse = "|"),new_sample_names_ESV)]]
+      ESV_data_initial <- ESV_data_initial[,!grepl("EMPTY",colnames(ESV_data_initial))]
       # correct sample identifiers
-      sample_names_ESV <- new_sample_names[!grepl(paste(c(negatives,blank,"EMPTY"),collapse = "|"),new_sample_names)]
+      sample_names <- new_sample_names_ESV[!grepl(paste0(sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)],collapse = "|"),new_sample_names_ESV)]
+      sample_names_ESV <- new_sample_names[!grepl("EMPTY",new_sample_names)]
       sample_cols_ESV <- match(sample_names_ESV,colnames(ESV_data_initial))
     }
   }

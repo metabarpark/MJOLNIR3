@@ -51,17 +51,66 @@ MJOLNIR3 depends on the following dependencies, which must be installed in the s
 
 2. Install dependencies with the virtual environment activated. With the Conda environment some of the software can be installed from conda repositories.
 
-3. Install MJOLNIR3 \
+* It is recommended to download the repository, so constant updates will be occurring for the first versions and updates are easier that way. Then install all the required software within the MJOLNIR3 folder.
+
+        # with your prefered environment activated
+        # clone MJOLNIR3 repository
+        git clone https://github.com/metabarpark/MJOLNIR3.git
+        cd MJOLNIR3
+        # installation of Obitools3
+        git clone https://git.metabarcoding.org/obitools/obitools3.git
+        cd obitools3
+        pip3 install cython
+        python3 setup.py install
+        source obi_completion_script.bash
+        cd ..
+        # installation of vsearch
+        git clone https://github.com/torognes/vsearch.git
+        cd vsearch
+        ./autogen.sh
+        ./configure CFLAGS="-O3" CXXFLAGS="-O3"
+        make
+        cd ..
+        # installation of swarm
+        git clone https://github.com/torognes/swarm.git
+        cd swarm/
+        make
+        cd ..
+        # installation of DnoisE
+        git clone https://github.com/adriantich/DnoisE.git
+        cd DnoisE/
+        python3 setup.py install
+        cd ../..
+        # now turn to R
+        R
+        # install lulu
+        > library(devtools)
+        > install_github("tobiasgf/lulu")  
+        # install biostrings
+        > if (!require("BiocManager", quietly = TRUE))
+               install.packages("BiocManager")
+        > BiocManager::install("Biostrings")
+        # Finally install MJOLNIR3
+        > install.packages('MJOLNIR3', repos = NULL)
+
+* For any update remove the package and install it again. In R console:
+
+        > remove.package('mjolnir')
+        > install.packages('MJOLNIR3', repos = NULL)
+
+* Alternatively you can install each dependency using anaconda or your prefered method but keep in mind that the paths to these dependencies will have to be specified in the conda paths, in your own PATH or specified for each in your script.
+
+3. Alternative ways to install MJOLNIR3 
 * If the devtools library is properly installed in the system: MJOLNIR3 can be installed directly from the R console using: 
 
-        library(devtools)
-        install_github("metabarpark/MJOLNIR3") 
+        > library(devtools)
+        > install_github("metabarpark/MJOLNIR3") 
 * If the devtools library is not installed: 
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MJOLNIR3 can be downloaded as a package from this link: https://github.com/metabarpark/MJOLNIR3/archive/main.zip.
 Then the file must be unzipped and MJOLNIR3 can be installed offline from the R console using:
 
-        install.packages("MJOLNIR3-main", repos=NULL)
+        > install.packages("MJOLNIR3-main", repos=NULL)
         
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Another option is to clone with git the MJOLNIR3 repository: 
 
@@ -78,15 +127,15 @@ The following settings are recommended for COI Leray/Leray-XT primers (Leray et 
 
 The following settings are recommended for 12S MiFish primers (Miya et al. 2015): 
 - In mjolnir2_FREYJA: Lmin=140,Lmax=190 
-- In mjolnir4_ODIN: d=1,COI=F,algorithm="SWARM"
+- In mjolnir4_ODIN: d=1,algorithm="SWARM"
 
 The following settings are recommended for 18S All_shorts primers (Guardiola et al. 2015): 
 - In mjolnir2_FREYJA: Lmin=75,Lmax=180 
-- In mjolnir4_ODIN: d=1,COI=F,algorithm="SWARM"
+- In mjolnir4_ODIN: d=1,algorithm="SWARM"
 
 The following settings are recommended for 16S Bacterial F515/R806 primers (Caporaso et al. 2011): 
 - In mjolnir2_FREYJA: Lmin=215,Lmax=299 
-- In mjolnir4_ODIN: d=1,COI=F,algorithm="SWARM"
+- In mjolnir4_ODIN: d=1,algorithm="SWARM"
 
 <H2>The MJOLNIR3 Pipeline</H2>
 
