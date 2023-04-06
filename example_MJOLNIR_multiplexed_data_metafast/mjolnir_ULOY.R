@@ -10,12 +10,13 @@ lib_prefixes <- c("ULO1","ULO2","ULO3","ULO4")
 # Input name for the final combined library (should be a 4-character name)
 lib <- "ULOY"
 
+mjolnir_PATH = "~/SOFT/MJOLNIR3/"
 
-obipath="~/obi3-env/bin/"
-vseatchpath = "~/vsearch-2.22.1/bin/"
-swarmpath = "~/swarm/bin/"
-dnoise_path = "~/DnoisE/src/"
-tax_dir = "~/taxo_NCBI/"
+obipath="" 
+vseatchpath = paste0(mjolnir_PATH,"vsearch/bin/")
+swarmpath = paste0(mjolnir_PATH,"swarm/bin/")
+dnoise_path = paste0(mjolnir_PATH,"DnoisE/src/")
+tax_dir = paste0(mjolnir_PATH,"taxo_NCBI")
 tax_dms_name = "DUFA_COI"
 
 ####################
