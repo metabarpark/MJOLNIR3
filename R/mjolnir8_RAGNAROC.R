@@ -255,9 +255,7 @@ mjolnir8_RAGNAROC <- function(lib,metadata_table="",output_file="",output_file_E
   }
 
   # db[1,"09_12_M2_A_C"] <- 10000000000000
-
-
-
+  print(colnames(db))
   # Filter 1. remove any MOTU for which abundance in the blank or negative controls was higher than 10% of its total read abundance
   # remove blank and NEG samples
   if (dim(neg_samples)[2]>0) {
@@ -357,74 +355,73 @@ mjolnir8_RAGNAROC <- function(lib,metadata_table="",output_file="",output_file_E
   message("After RAGNAROC, MJOLNIR is done. File: ",output_file, " written with ",nrow(db_new), " MOTUs and ",sum(db_new$total_reads)," total reads.")
 
   sink("RAGNAROC_summary_report.txt")
-  cat(paste0("Dear friend,\n",
+  RAGNAROC_report <- paste("Dear friend,\n",
              "you have succesfully arrived at the end of RAGNAROC. You've meet gods and took their help to twist the data to your will.\n",
              "After RAGNAROC the rest is up to you. Don't lose the faith in your experiment, the end is near but new paths will open below your feet.\n",
              "Please don't forget to cite and thank the two dwarfs Cindri and Brok, AKA Owen and Adria, for the forge of my self.\n",
              "MJOLNIR.\n",
-             "P.S.: See below for a small summary of your journey.\n"))
+             "P.S.: See below for a small summary of your journey.\n")
   if (FREYJA) {
     if (as.logical(variables_FREYJA["demultiplexed",2])) {
-      cat(paste0("You started FREYJA with your samples allready demultiplexed and with the following sequences for each file \n"))
+      RAGNAROC_report <- paste(RAGNAROC_report, "You started FREYJA with your samples allready demultiplexed and with the following sequences for each file \n")
       do.call("rbind",before_FREYJA)
     } else{
-      cat(paste0("You started FREYJA with the following sequences for each file \n"))
+      RAGNAROC_report <- paste(RAGNAROC_report, "You started FREYJA with the following sequences for each file \n")
       do.call("rbind",lapply(before_FREYJA,function(x)do.call("rbind",x)))
     }
-    cat(paste0("You used ",variables_FREYJA["cores",2]," cores to aling your sequences. You choosed those sequences with a quality score of more than ",variables_FREYJA["score_obialign",2],".\n",
+    RAGNAROC_report <-  paste(RAGNAROC_report, "You used",variables_FREYJA["cores",2]," cores to aling your sequences. You choosed those sequences with a quality score of more than",variables_FREYJA["score_obialign",2],".\n",
                "You assign each sequence to a sample name and removed the primer's sequences.\n",
-               "Finally in FREYJA you just kept those sequences with A, G, T or C's and with a sequence length between ",variables_FREYJA["Lmin",2]," and ",variables_FREYJA["Lmax",2]," bp.\n",
-               "The resulting files had the following stats:\n"))
+               "Finally in FREYJA you just kept those sequences with A, G, T or C's and with a sequence length between",variables_FREYJA["Lmin",2],"and",variables_FREYJA["Lmax",2],"bp.\n",
+               "The resulting files had the following stats:\n")
     as.data.frame(pivot_wider(do.call("rbind",after_FREYJA),names_from = "version",values_from = "num_seqs"))
   } else {
-    cat("Sorry but I couldn't find a summary of your FREYJA process")
+    RAGNAROC_report <-  paste(RAGNAROC_report, "Sorry but I couldn't find a summary of your FREYJA process \n")
   }
   if (HELA) {
-    cat(paste0("HELA removed the chimeras with the uchime_denovo algorithm and kept for each sample the following number of non-chimeras:\n"))
+    RAGNAROC_report <-  paste(RAGNAROC_report, "HELA removed the chimeras with the uchime_denovo algorithm and kept for each sample the following number of non-chimeras:\n")
     after_HELA
   } else {
-    cat("Sorry but I couldn't find a summary of your HELA process")
+    RAGNAROC_report <-  paste(RAGNAROC_report, "Sorry but I couldn't find a summary of your HELA process \n")
   }
   if (ODIN) {
-    cat(paste0("ODIN was used to obtain meaningful units. In your case you chose the ",algorithm," algorithm.\n"))
+    RAGNAROC_report <-  paste(RAGNAROC_report, "ODIN was used to obtain meaningful units. In your case you chose the ",algorithm," algorithm.\n")
     if (algorithm=="dnoise_swarm" | algorithm=="dnoise") {
-      cat(paste0("ODIN used DnoisE to obtain the ESV's of your samples running within them with the following options:\n"))
+      RAGNAROC_report <-  paste(RAGNAROC_report, "ODIN used DnoisE to obtain the ESV's of your samples running within them with the following options:\n")
       if (!is.logical(entropy)) {
-        cat(paste0("Entropy correction with sequences delimited to a multiple of 313bp, alpha ",alpha," and minimum number of reads of ",min_reads_ESV,"\n"))
+        RAGNAROC_report <-  paste(RAGNAROC_report, "Entropy correction with sequences delimited to a multiple of 313bp, alpha",alpha,"and minimum number of reads of",min_reads_ESV,"\n")
       } else {
-        cat(paste0("Alpha ",alpha," and minimum number of reads of ",min_reads_ESV,"\n"))
+        RAGNAROC_report <-  paste(RAGNAROC_report, "Alpha",alpha,"and minimum number of reads of",min_reads_ESV,"\n")
       }
     }
     if (algorithm=="dnoise_swarm"  | algorithm=="swarm" | algorithm=="swarm_dnoise") {
-      cat(paste0("ODIN joined all the sequences, obtained the unique ones and applied swarm to obtain the MOTUs. Before SWARM you had",after_2_ODIN$values[after_ODIN$version==seq_id]," sequences and at the end you obtained the following stats: \n"))
+      RAGNAROC_report <-  paste(RAGNAROC_report, "ODIN joined all the sequences, obtained the unique ones and applied swarm to obtain the MOTUs. Before SWARM you had",after_2_ODIN$values[after_ODIN$version==seq_id],"sequences and at the end you obtained the following stats: \n"))
       after_4a_ODIN
     } else{
-      cat(paste0("The samples were then grouped and the unique sequences obtained being ",after_2_ODIN$values[after_ODIN$version==seq_id]," sequences in total.\n"))
+      RAGNAROC_report <-  paste(RAGNAROC_report, "The samples were then grouped and the unique sequences obtained being",after_2_ODIN$values[after_ODIN$version==seq_id],"sequences in total.\n")
     }
     if (algorithm=="swarm_dnoise") {
-      cat(paste0("ODIN used DnoisE to obtain the ESV's of your samples running within them with the following options:\n"))
+      RAGNAROC_report <-  paste(RAGNAROC_report, "ODIN used DnoisE to obtain the ESV's of your samples running within them with the following options:\n")
       if (run_entropy) {
-        cat(paste0("Entropy correction (",entropy,"), alpha ",alpha," and minimum number of reads of ",min_reads_ESV,"\n"))
+        RAGNAROC_report <-  paste(RAGNAROC_report, "Entropy correction (",entropy,"), alpha ",alpha," and minimum number of reads of ",min_reads_ESV,"\n")
       } else {
-        cat(paste0("Alpha ",alpha," and minimum number of reads of ",min_reads_ESV,"\n"))
+        RAGNAROC_report <-  paste(RAGNAROC_report, "Alpha ",alpha," and minimum number of reads of ",min_reads_ESV,"\n")
       }
     }
   } else {
-    cat("Sorry but I couldn't find a summary of your ODIN process")
+    RAGNAROC_report <-  paste(RAGNAROC_report, "Sorry but I couldn't find a summary of your ODIN process \n")
   }
   if (LOKI) {
-    cat(paste0("LOKI used LULU to search for potential pseudogenes and found ",num_discarded," OTUs that were discarded.\n"))
-    after_HELA
+    RAGNAROC_report <-  paste(RAGNAROC_report, "LOKI used LULU to search for potential pseudogenes and found ",num_discarded," OTUs that were discarded.\n")
   } else {
-    cat("Sorry but I couldn't find a summary of your LOKI process")
+    RAGNAROC_report <-  paste(RAGNAROC_report, "Sorry but I couldn't find a summary of your LOKI process\n")
   }
-  cat(paste0("During RAGNAROC some filters were applied."))
-  if (remove_bacteria) cat(paste0(bacteria_removed," bacteria were removed"))
-  if (remove_contamination) cat(paste0("contaminations were removed"))
-  if (dim(neg_samples)[2]>0) cat(paste0(data_neg_filt_deleted,ifelse(ESV_within_MOTU," ESV"," MOTU")," were removed by neg/blank filter"))
-  cat(paste0("The relative abundance filter of ",min_relative," within samples had effect on the following id's and samples:"))
+  RAGNAROC_report <-  paste(RAGNAROC_report, "During RAGNAROC some filters were applied.")
+  if (remove_bacteria) RAGNAROC_report <-  paste(RAGNAROC_report, bacteria_removed," bacteria were removed\n")
+  if (remove_contamination) RAGNAROC_report <-  paste(RAGNAROC_report, "contaminations were removed\n")
+  if (dim(neg_samples)[2]>0) RAGNAROC_report <-  paste(RAGNAROC_report, data_neg_filt_deleted,ifelse(ESV_within_MOTU," ESV"," MOTU")," were removed by neg/blank filter\n")
+  RAGNAROC_report <-  paste(RAGNAROC_report, "The relative abundance filter of ",min_relative," within samples had effect on the following id's and samples:\n")
   relabund_changed
-  if (ESV_within_MOTU&remove_numts) cat(paste0("The numts filter found ",numts_ESV," numts that were removed."))
+  if (ESV_within_MOTU&remove_numts) RAGNAROC_report <-  paste(RAGNAROC_report, "The numts filter found",numts_ESV,"numts that were removed.\n")
   sink()
 }
 
