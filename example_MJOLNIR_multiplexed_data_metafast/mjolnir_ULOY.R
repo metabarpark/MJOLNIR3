@@ -13,7 +13,7 @@ lib <- "ULOY"
 mjolnir_PATH = "~/SOFT/MJOLNIR3/"
 
 obipath="" 
-vseatchpath = paste0(mjolnir_PATH,"vsearch/bin/")
+vsearchpath = paste0(mjolnir_PATH,"vsearch/bin/")
 swarmpath = paste0(mjolnir_PATH,"swarm/bin/")
 dnoise_path = paste0(mjolnir_PATH,"DnoisE/src/")
 tax_dir = paste0(mjolnir_PATH,"taxo_NCBI")
