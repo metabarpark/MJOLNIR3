@@ -335,12 +335,14 @@ mjolnir8_RAGNAROC <- function(lib,metadata_table="",output_file="",output_file_E
         datas_length <- nchar(as.vector(datas$NUC_SEQ))
         newlist <- numts(datas, is_metazoa = is_metazoa, motu = motu, datas_length = datas_length)
         return(newlist)
-      },ESV_data_initial=ESV_data_initial,motu_taxa=motu_taxa,mc.cores = cores)
-      print('point3')
+      },ESV_data_initial=ESV_data_initial,motu_taxa=motu_taxa,mc.cores = cores)ç
       numts_ESV <- do.call("rbind",numts_ESV)
+      print(numts_ESV)
       ESV_data_initial <- ESV_data_initial[ESV_data_initial$ID %in% numts_ESV$id,]
       message("numts removed")
     }
+    dim(db)
+    dim(ESV_data_initial)
     db <- db[db$id %in% unique(ESV_data_initial$MOTU),]
     # compute new abundances of MOTUs from ESV
     motu_abund <- parallel::mclapply(db$id, FUN = function(x,ESV_data_initial,sample_cols_ESV){
@@ -359,7 +361,7 @@ mjolnir8_RAGNAROC <- function(lib,metadata_table="",output_file="",output_file_E
   if (ESV_within_MOTU){
     write.table(ESV_data_initial,output_file_ESV,row.names = F,sep="\t",quote = F)
   }
-  message("After RAGNAROC, MJOLNIR is done. File: ",output_file, " written with ",nrow(db_new), " MOTUs and ",sum(db_new$total_reads)," total reads.")
+  message("After RAGNAROC, MJOLNIR is done. File: ",output_file, " written with ",nrow(db), " MOTUs and ",sum(db$total_reads)," total reads.")
 
   sink("RAGNAROC_summary_report.txt")
   RAGNAROC_report <- paste("Dear friend,\n",
