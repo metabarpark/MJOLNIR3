@@ -335,7 +335,7 @@ mjolnir8_RAGNAROC <- function(lib,metadata_table="",output_file="",output_file_E
         datas_length <- nchar(as.vector(datas$NUC_SEQ))
         newlist <- numts(datas, is_metazoa = is_metazoa, motu = motu, datas_length = datas_length)
         return(newlist)
-      },ESV_data_initial=ESV_data_initial,motu_taxa=motu_taxa,mc.cores = cores)ç
+      },ESV_data_initial=ESV_data_initial,motu_taxa=motu_taxa,mc.cores = cores)
       numts_ESV <- do.call("rbind",numts_ESV)
       print(numts_ESV)
       ESV_data_initial <- ESV_data_initial[ESV_data_initial$ID %in% numts_ESV$id,]
