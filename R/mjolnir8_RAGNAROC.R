@@ -219,7 +219,9 @@ mjolnir8_RAGNAROC <- function(lib,metadata_table="",output_file="",output_file_E
   if (!ESV_within_MOTU) {
     neg_samples <- db[,sample_cols[grepl(paste0(sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)],collapse = "|"),new_sample_names)]]
   }
-  print('point4',dim(db),colnames(db))
+  print('point4')
+  print(dim(db))
+  print(colnames(db))
   print(-sample_cols[grepl(paste0(sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)],collapse = "|"),new_sample_names)])
 
   # remove negs and empties
@@ -231,7 +233,9 @@ mjolnir8_RAGNAROC <- function(lib,metadata_table="",output_file="",output_file_E
   sample_names <- sample_names[!grepl("EMPTY",sample_names)]
   sample_cols <- match(sample_names,colnames(db))
   
-  print('point5',dim(db),colnames(db))
+  print('point4')
+  print(dim(db))
+  print(colnames(db))
   # same for ESVs
   if (ESV_within_MOTU) {
     # Select sample abundance columns
