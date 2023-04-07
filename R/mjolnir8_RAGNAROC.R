@@ -325,12 +325,9 @@ mjolnir8_RAGNAROC <- function(lib,metadata_table="",output_file="",output_file_E
 
       no_numts_data <- c()
       numts_seqs <- c()
-      
-      print('point1')
   
       number_of_motus <- length(unique(ESV_data_initial$MOTU))
       motu_taxa <- data.frame("id" = db$id, "Metazoa" = c(db$kingdom_name == "Metazoa" & !is.na(db$kingdom_name)))
-      print('point2')
       numts_ESV <- parallel::mclapply(1:number_of_motus,function(i,ESV_data_initial,motu_taxa){
         motu <- unique(ESV_data_initial$MOTU)[i]
         datas <- ESV_data_initial[ESV_data_initial$MOTU==motu,]
@@ -430,7 +427,7 @@ mjolnir8_RAGNAROC <- function(lib,metadata_table="",output_file="",output_file_E
   if (remove_contamination) RAGNAROC_report <-  paste(RAGNAROC_report, "contaminations were removed\n")
   if (dim(neg_samples)[2]>0) RAGNAROC_report <-  paste(RAGNAROC_report, data_neg_filt_deleted,ifelse(ESV_within_MOTU," ESV"," MOTU")," were removed by neg/blank filter\n")
   RAGNAROC_report <-  paste(RAGNAROC_report, "The relative abundance filter of ",min_relative," within samples had effect on the following id's and samples:\n")
-  relabund_changed
+  RAGNAROC_report <-  paste(c(RAGNAROC_report,relabund_changed))
   if (ESV_within_MOTU&remove_numts) RAGNAROC_report <-  paste(RAGNAROC_report, "The numts filter found",numts_ESV,"numts that were removed.\n")
   sink()
 }
@@ -474,7 +471,7 @@ numts<-function(datas, is_metazoa=FALSE, motu, datas_length)
   stops<-matrix(NA,dim(datas)[1],20)
   aa_xung<-matrix(NA,dim(datas)[1],20)
   seq<-DNAStringSet(datas$NUC_SEQ)
-  seq<-DNAStringSet(seq,start=2,end=nchar(seq[1]))
+  seq<-DNAStringSet(seq,start=2,end=nchar(datas$NUC_SEQ[1]))
 
   for (qq in mitochondrial_GC){
     code<-getGeneticCode(as.character(GENETIC_CODE_TABLE$id[qq]))
