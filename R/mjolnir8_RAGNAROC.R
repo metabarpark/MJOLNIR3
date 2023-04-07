@@ -337,12 +337,9 @@ mjolnir8_RAGNAROC <- function(lib,metadata_table="",output_file="",output_file_E
         return(newlist)
       },ESV_data_initial=ESV_data_initial,motu_taxa=motu_taxa,mc.cores = cores)
       numts_ESV <- do.call("rbind",numts_ESV)
-      print(numts_ESV)
-      ESV_data_initial <- ESV_data_initial[ESV_data_initial$ID %in% numts_ESV$id,]
+      ESV_data_initial <- ESV_data_initial[!ESV_data_initial$ID %in% numts_ESV$id,]
       message("numts removed")
     }
-    dim(db)
-    dim(ESV_data_initial)
     db <- db[db$id %in% unique(ESV_data_initial$MOTU),]
     # compute new abundances of MOTUs from ESV
     motu_abund <- parallel::mclapply(db$id, FUN = function(x,ESV_data_initial,sample_cols_ESV){
@@ -363,7 +360,6 @@ mjolnir8_RAGNAROC <- function(lib,metadata_table="",output_file="",output_file_E
   }
   message("After RAGNAROC, MJOLNIR is done. File: ",output_file, " written with ",nrow(db), " MOTUs and ",sum(db$total_reads)," total reads.")
 
-  sink("RAGNAROC_summary_report.txt")
   RAGNAROC_report <- paste("Dear friend,\n",
              "you have succesfully arrived at the end of RAGNAROC. You've meet gods and took their help to twist the data to your will.\n",
              "After RAGNAROC the rest is up to you. Don't lose the faith in your experiment, the end is near but new paths will open below your feet.\n",
@@ -403,10 +399,13 @@ mjolnir8_RAGNAROC <- function(lib,metadata_table="",output_file="",output_file_E
       }
     }
     if (algorithm=="dnoise_swarm"  | algorithm=="swarm" | algorithm=="swarm_dnoise") {
-      RAGNAROC_report <-  paste(RAGNAROC_report, "ODIN joined all the sequences, obtained the unique ones and applied swarm to obtain the MOTUs. Before SWARM you had",after_2_ODIN$values[after_ODIN$version==seq_id],"sequences and at the end you obtained the following stats: \n")
-      after_4a_ODIN
+      if (exists("after_2_ODIN")&exists("after_4a_ODIN")) {
+        RAGNAROC_report <-  paste(RAGNAROC_report, "ODIN joined all the sequences, obtained the unique ones and applied swarm to obtain the MOTUs. Before SWARM you had",after_2_ODIN$values[after_2_ODIN$version=="seq_id"],"sequences and at the end you obtained the following stats: \n")
+      }
     } else{
-      RAGNAROC_report <-  paste(RAGNAROC_report, "The samples were then grouped and the unique sequences obtained being",after_2_ODIN$values[after_ODIN$version==seq_id],"sequences in total.\n")
+      if (exists("after_2_ODIN")) {
+        RAGNAROC_report <-  paste(RAGNAROC_report, "The samples were then grouped and the unique sequences obtained being",after_2_ODIN$values[after_2_ODIN$version=="seq_id"],"sequences in total.\n")
+      }
     }
     if (algorithm=="swarm_dnoise") {
       RAGNAROC_report <-  paste(RAGNAROC_report, "ODIN used DnoisE to obtain the ESV's of your samples running within them with the following options:\n")
@@ -431,6 +430,8 @@ mjolnir8_RAGNAROC <- function(lib,metadata_table="",output_file="",output_file_E
   RAGNAROC_report <-  paste(RAGNAROC_report, "The relative abundance filter of ",min_relative," within samples had effect on the following id's and samples:\n")
   RAGNAROC_report <-  paste(c(RAGNAROC_report,relabund_changed))
   if (ESV_within_MOTU&remove_numts) RAGNAROC_report <-  paste(RAGNAROC_report, "The numts filter found",numts_ESV,"numts that were removed.\n")
+  sink("RAGNAROC_summary_report.txt")
+  cat(RAGNAROC_report)
   sink()
 }
 
