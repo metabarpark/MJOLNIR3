@@ -217,23 +217,26 @@ mjolnir8_RAGNAROC <- function(lib,metadata_table="",output_file="",output_file_E
   # get negatives/blanks from MOTUs if not ESV_within_MOTU so the filter will 
   # be done with the ESV, not with MOTUs
   if (!ESV_within_MOTU) {
-    neg_samples <- db[,sample_cols[grepl(paste0(sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)],collapse = "|"),new_sample_names)]]
+    neg_samples <- db[,c(colnames(db) %in% sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)])]
+    # neg_samples <- db[,sample_cols[grepl(paste0(sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)],collapse = "|"),new_sample_names)]]
   }
   print('point4')
   print(dim(db))
   print(colnames(db))
-  print(-sample_cols[grepl(paste0(sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)],collapse = "|"),new_sample_names)])
+  print(colnames(db) %in% sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)])
 
   # remove negs and empties
-  db <- db[,-sample_cols[grepl(paste0(sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)],collapse = "|"),new_sample_names)]]
+  db <- db[,!c(colnames(db) %in% sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)])]
+  # db <- db[,-sample_cols[grepl(paste0(sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)],collapse = "|"),new_sample_names)]]
   db <- db[,!grepl("EMPTY",colnames(db))]
 
   # correct sample identifiers
-  sample_names <- new_sample_names[!grepl(paste0(sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)],collapse = "|"),new_sample_names)]
+  sample_names <- new_sample_names[!c(new_sample_names %in% sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)])]
+  # sample_names <- new_sample_names[!grepl(paste0(sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)],collapse = "|"),new_sample_names)]
   sample_names <- sample_names[!grepl("EMPTY",sample_names)]
   sample_cols <- match(sample_names,colnames(db))
   
-  print('point4')
+  print('point5')
   print(dim(db))
   print(colnames(db))
   # same for ESVs
@@ -247,15 +250,18 @@ mjolnir8_RAGNAROC <- function(lib,metadata_table="",output_file="",output_file_E
     new_sample_names_ESV[is.na(new_sample_names_ESV)] <- gsub("^","EMPTY",as.character(c(1:sum(is.na(new_sample_names_ESV)))))
     names(ESV_data_initial)[sample_cols_ESV] <- new_sample_names_ESV
 
-    neg_samples <- ESV_data_initial[,sample_cols_ESV[grepl(paste0(sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)],collapse = "|"),new_sample_names_ESV)]]
+    neg_samples <- ESV_data_initial[,c(colnames(ESV_data_initial) %in% sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)])]
+    # neg_samples <- ESV_data_initial[,sample_cols_ESV[grepl(paste0(sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)],collapse = "|"),new_sample_names_ESV)]]
 
     # remove neg samples
     if (dim(neg_samples)[2]>0) {
       # remove negs and empties
-      ESV_data_initial <- ESV_data_initial[,-sample_cols_ESV[grepl(paste0(sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)],collapse = "|"),new_sample_names_ESV)]]
+      ESV_data_initial <- ESV_data_initial[,!c(colnames(ESV_data_initial) %in% sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)])]
+      # ESV_data_initial <- ESV_data_initial[,-sample_cols_ESV[grepl(paste0(sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)],collapse = "|"),new_sample_names_ESV)]]
       ESV_data_initial <- ESV_data_initial[,!grepl("EMPTY",colnames(ESV_data_initial))]
       # correct sample identifiers
-      sample_names <- new_sample_names_ESV[!grepl(paste0(sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)],collapse = "|"),new_sample_names_ESV)]
+      sample_names <- new_sample_names_ESV[!c(new_sample_names_ESV %in% sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)])]
+      # sample_names <- new_sample_names_ESV[!grepl(paste0(sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)],collapse = "|"),new_sample_names_ESV)]
       sample_names_ESV <- new_sample_names[!grepl("EMPTY",new_sample_names)]
       sample_cols_ESV <- match(sample_names_ESV,colnames(ESV_data_initial))
     }
