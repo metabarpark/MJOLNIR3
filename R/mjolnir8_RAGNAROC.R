@@ -220,11 +220,7 @@ mjolnir8_RAGNAROC <- function(lib,metadata_table="",output_file="",output_file_E
     neg_samples <- db[,c(colnames(db) %in% sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)])]
     # neg_samples <- db[,sample_cols[grepl(paste0(sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)],collapse = "|"),new_sample_names)]]
   }
-  print('point4')
-  print(dim(db))
-  print(colnames(db))
-  print(colnames(db) %in% sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)])
-
+  
   # remove negs and empties
   db <- db[,!c(colnames(db) %in% sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)])]
   # db <- db[,-sample_cols[grepl(paste0(sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)],collapse = "|"),new_sample_names)]]
@@ -236,9 +232,6 @@ mjolnir8_RAGNAROC <- function(lib,metadata_table="",output_file="",output_file_E
   sample_names <- sample_names[!grepl("EMPTY",sample_names)]
   sample_cols <- match(sample_names,colnames(db))
   
-  print('point5')
-  print(dim(db))
-  print(colnames(db))
   # same for ESVs
   if (ESV_within_MOTU) {
     # Select sample abundance columns
@@ -268,7 +261,6 @@ mjolnir8_RAGNAROC <- function(lib,metadata_table="",output_file="",output_file_E
   }
 
   # db[1,"09_12_M2_A_C"] <- 10000000000000
-  print(paste('point6',dim(db),colnames(db)))
   
   # Filter 1. remove any MOTU for which abundance in the blank or negative controls was higher than 10% of its total read abundance
   # remove blank and NEG samples
@@ -333,9 +325,12 @@ mjolnir8_RAGNAROC <- function(lib,metadata_table="",output_file="",output_file_E
 
       no_numts_data <- c()
       numts_seqs <- c()
-
+      
+      print('point1')
+  
       number_of_motus <- length(unique(ESV_data_initial$MOTU))
       motu_taxa <- data.frame("id" = db$id, "Metazoa" = c(db$kingdom_name == "Metazoa" & !is.na(db$kingdom_name)))
+      print('point2')
       numts_ESV <- parallel::mclapply(1:number_of_motus,function(i,ESV_data_initial,motu_taxa){
         motu <- unique(ESV_data_initial$MOTU)[i]
         datas <- ESV_data_initial[ESV_data_initial$MOTU==motu,]
@@ -344,6 +339,7 @@ mjolnir8_RAGNAROC <- function(lib,metadata_table="",output_file="",output_file_E
         newlist <- numts(datas, is_metazoa = is_metazoa, motu = motu, datas_length = datas_length)
         return(newlist)
       },ESV_data_initial=ESV_data_initial,motu_taxa=motu_taxa,mc.cores = cores)
+      print('point3')
       numts_ESV <- do.call("rbind",numts_ESV)
       ESV_data_initial <- ESV_data_initial[ESV_data_initial$ID %in% numts_ESV$id,]
       message("numts removed")
