@@ -468,15 +468,17 @@ mjolnir4_ODIN <- function(lib,cores,d=13,min_reads_MOTU=2,min_reads_ESV=2,alpha=
                       "--csv_output ",outfile_ESV," ",
                       "-a ",alpha," -c ",cores," -n 'COUNT' -p 1 -q 'NUC_SEQ' ",
                       "-s ", s_opt," -z ", z_opt," ",
-                      entropy," -w 'MOTU' -r ",min_reads_ESV),intern = T, wait = T)
-        remaining_ESV <- as.numeric(system(paste0("wc -l ",file,"_ODIN_Adcorr_denoised_ratio_d.csv |  cut -f1 -d ' ' "),intern = T, wait = T))-1
+                      entropy," -w 'MOTU' -r ",min_reads_ESV, " ; ",
+                      "mv ",outfile_ESV,"_Adcorr_denoised_ratio_d.csv ",outfile_ESV),intern = T, wait = T)
+        remaining_ESV <- as.numeric(system(paste0("wc -l ",outfile_ESV," |  cut -f1 -d ' ' "),intern = T, wait = T))-1
       } else  {
         system(paste0(dnoise," --csv_input ",outfile_preDnoisE," ",
                       "--csv_output ",outfile_ESV," ",
                       "-a ",alpha," -c ",cores," -n 'COUNT' -p 1 -q 'NUC_SEQ' ",
                       "-s ", s_opt," -z ", z_opt," ",
-                      "-w 'MOTU' -r ",min_reads_ESV),intern = T, wait = T)
-        remaining_ESV <- as.numeric(system(paste0("wc -l ",file,"_ODIN_denoised_ratio_d.csv |  cut -f1 -d ' ' "),intern = T, wait = T))-1
+                      "-w 'MOTU' -r ",min_reads_ESV, " ; ",
+                      "mv ",outfile_ESV,"_denoised_ratio_d.csv ",outfile_ESV),intern = T, wait = T)
+        remaining_ESV <- as.numeric(system(paste0("wc -l ",outfile_ESV," |  cut -f1 -d ' ' "),intern = T, wait = T))-1
       }
       after_4a_ODIN <- rbind(after_4a_ODIN,data.frame(version = c("remaining_ESV"),
                                                       value = c(remaining_ESV)))
