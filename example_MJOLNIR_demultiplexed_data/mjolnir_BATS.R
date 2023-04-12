@@ -1,9 +1,6 @@
 # Load MJOLNIR silently
 suppressPackageStartupMessages(library(mjolnir))
 
-# Define number of cores to be used in parallel.
-cores <- 16
-
 mjolnir_PATH = "~/SOFT/MJOLNIR3/"
 
 obipath="" 
