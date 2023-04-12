@@ -347,7 +347,7 @@ mjolnir4_ODIN <- function(lib,cores,d=13,min_reads_MOTU=2,min_reads_ESV=2,alpha=
   if (algorithm=="swarm_dnoise" | algorithm=="swarm" | algorithm=="dnoise_swarm"){
     outfile_MOTU <- paste0(outfile,"_counts.tsv")
     outfile_ESV <- paste0(outfile,"_ESV.tsv")
-    outfile_DnoisE <- paste0(outfile,"_SWARM_DnoisE") # + _Adcorr_denoised_ratio_d.csv | _Adcorr_denoised_ratio_d.csv
+    outfile_preDnoisE <- paste0(outfile,"_seqs.tsv") # + _Adcorr_denoised_ratio_d.csv | _Adcorr_denoised_ratio_d.csv
     # intermediate input/ouput
     fileswarm <- paste0(outfile,"_SWARM_output")
   }
@@ -437,7 +437,7 @@ mjolnir4_ODIN <- function(lib,cores,d=13,min_reads_MOTU=2,min_reads_ESV=2,alpha=
 
     # print datasets
     write.table(db.total,outfile_MOTU,sep="\t",quote=F,row.names=F)
-    write.table(db,outfile_ESV,sep="\t",quote=F,row.names=F)
+    write.table(db,outfile_preDnoisE,sep="\t",quote=F,row.names=F)
 
     # divide dataset into different files for THOR
     db.total <- db.total[,c("ID","NUC_SEQ")]
@@ -453,8 +453,8 @@ mjolnir4_ODIN <- function(lib,cores,d=13,min_reads_MOTU=2,min_reads_ESV=2,alpha=
       message("ODIN will generate now a list of ESVs for every non-singleton MOTU, using DnoisE.")
       if(entropy[1]=="auto_dataset" | entropy[1]=="auto_sample") {
         message("for the SWARM_DnoisE algorithm entropy equals to entropy_sample or auto_dataset are equivalent")
-        system(paste0(dnoise," --csv_input ",outfile_ESV," -g"),intern = T, wait = T)
-        entropies  <- read.csv(paste0(outfile_ESV,"_entropy_values.csv"))
+        system(paste0(dnoise," --csv_input ",outfile_preDnoisE," -g"),intern = T, wait = T)
+        entropies  <- read.csv(paste0(outfile_preDnoisE,"_entropy_values.csv"))
         entropy <- c(entropies[1,4:6],entropies[1,1])
       }
       if (is.logical(entropy)) {
@@ -464,15 +464,15 @@ mjolnir4_ODIN <- function(lib,cores,d=13,min_reads_MOTU=2,min_reads_ESV=2,alpha=
       }
 
       if (run_entropy) {
-        system(paste0(dnoise," --csv_input ",outfile_ESV," ",
-                      "--csv_output ",outfile_DnoisE," ",
+        system(paste0(dnoise," --csv_input ",outfile_preDnoisE," ",
+                      "--csv_output ",outfile_ESV," ",
                       "-a ",alpha," -c ",cores," -n 'COUNT' -p 1 -q 'NUC_SEQ' ",
                       "-s ", s_opt," -z ", z_opt," ",
                       entropy," -w 'MOTU' -r ",min_reads_ESV),intern = T, wait = T)
         remaining_ESV <- as.numeric(system(paste0("wc -l ",file,"_ODIN_Adcorr_denoised_ratio_d.csv |  cut -f1 -d ' ' "),intern = T, wait = T))-1
       } else  {
-        system(paste0(dnoise," --csv_input ",outfile_ESV," ",
-                      "--csv_output ",outfile_DnoisE," ",
+        system(paste0(dnoise," --csv_input ",outfile_preDnoisE," ",
+                      "--csv_output ",outfile_ESV," ",
                       "-a ",alpha," -c ",cores," -n 'COUNT' -p 1 -q 'NUC_SEQ' ",
                       "-s ", s_opt," -z ", z_opt," ",
                       "-w 'MOTU' -r ",min_reads_ESV),intern = T, wait = T)
