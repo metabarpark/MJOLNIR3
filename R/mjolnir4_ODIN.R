@@ -347,7 +347,7 @@ mjolnir4_ODIN <- function(lib,cores,d=13,min_reads_MOTU=2,min_reads_ESV=2,alpha=
   if (algorithm=="swarm_dnoise" | algorithm=="swarm" | algorithm=="dnoise_swarm"){
     outfile_MOTU <- paste0(outfile,"_counts.tsv")
     outfile_ESV <- paste0(outfile,"_ESV.tsv")
-    outfile_preDnoisE <- paste0(outfile,"_seqs.tsv") # + _Adcorr_denoised_ratio_d.csv | _Adcorr_denoised_ratio_d.csv
+    outfile_preDnoisE <- paste0(outfile,"_seqs_to_dnoise.tsv") # + _Adcorr_denoised_ratio_d.csv | _Adcorr_denoised_ratio_d.csv
     # intermediate input/ouput
     fileswarm <- paste0(outfile,"_SWARM_output")
   }
