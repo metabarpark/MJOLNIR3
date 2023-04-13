@@ -56,4 +56,4 @@ mjolnir7_LOKI(lib = lib, min_id=.84,vsearchpath = vsearchpath)
 # RAGNAROC will change the names of the samples to recover the original names and will remove unnecessary columns
 mjolnir8_RAGNAROC(lib = lib,min_reads=2,min_relative=1/50000,
 		remove_bacteria=T,remove_contamination=F,
-                ESV_within_MOTU=T,blank_col="BLANK",blank_tag=T,remove_numts=T,cores=1,blank_relative=0.1)
+                ESV_within_MOTU=T,blank_col="BLANK",blank_tag=T,remove_numts=T,cores=cores,blank_relative=0.1)
