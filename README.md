@@ -57,7 +57,9 @@ MJOLNIR3 depends on the following dependencies, which must be installed in the s
         # clone MJOLNIR3 repository
         git clone https://github.com/metabarpark/MJOLNIR3.git
         cd MJOLNIR3
-        # installation of Obitools3
+        # installation of Obitools3 
+        # if you have problems with cmake, you can install it with conda
+        # conda install cmake
         git clone https://git.metabarcoding.org/obitools/obitools3.git
         cd obitools3
         pip3 install cython
