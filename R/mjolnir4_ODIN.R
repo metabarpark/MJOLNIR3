@@ -437,7 +437,7 @@ mjolnir4_ODIN <- function(lib,cores,d=13,min_reads_MOTU=2,min_reads_ESV=2,alpha=
 
     # print datasets
     write.table(db.total,outfile_MOTU,sep="\t",quote=F,row.names=F)
-    write.table(db,outfile_preDnoisE,sep="\t",quote=F,row.names=F)
+    write.table(db,ifelse(algorithm=="swarm_dnoise",outfile_preDnoisE,outfile_ESV),sep="\t",quote=F,row.names=F)
 
     # divide dataset into different files for THOR
     db.total <- db.total[,c("ID","NUC_SEQ")]
