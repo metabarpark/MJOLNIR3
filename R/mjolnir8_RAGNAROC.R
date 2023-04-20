@@ -301,8 +301,10 @@ mjolnir8_RAGNAROC <- function(lib,metadata_table="",output_file="",output_file_E
     db <- db[db$COUNT >= min_reads,]
   } else {
     rownames(ESV_data_initial) <- ESV_data_initial$ID
-
-    change_matrix <- do.call("cbind",apply(ESV_data_initial[,sample_cols_ESV], 2, relabund, min_relative=min_relative)) & ESV_data_initial[,sample_cols_ESV]>0
+    
+    change_matrix <- apply(ESV_data_initial[,sample_cols_ESV], 2, relabund, min_relative=min_relative)
+    change_matrix <- ifelse(is.array(change_matrix),change_matrix,do.call("cbind",change_matrix))
+    change_matrix <- change_matrix & ESV_data_initial[,sample_cols_ESV]>0
 
     relabund_changed <- data.frame(ESV_id_modified = rownames(change_matrix[rowSums(change_matrix)>0,]),
                                    samples = vapply(rownames(change_matrix[rowSums(change_matrix)>0,]), function(x,change_matrix){
