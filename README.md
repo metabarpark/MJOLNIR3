@@ -137,7 +137,7 @@ The following settings are recommended for 18S All_shorts primers (Guardiola et 
 
 The following settings are recommended for 18S V1-V2 SSUF04 (Blaxter et al. 1998) SSURmod (Sinniger et al. 2016) primers: 
 - In mjolnir2_FREYJA: Lmin=300,Lmax=500, primer_F="GCTTGTCTCAAAGATTAAGCC", primer_R="CCTGCTGCCTTCCTTRGA" (Günter et al 2021) 
-- In mjolnir4_ODIN: d=1,algorithm="SWARM"
+- In mjolnir4_ODIN: d=4 (Günter et al 2021), algorithm="DnoisE_SWARM", entopy=FALSE, alpha=2 (default value for UNOISE used in Sterrer et al. 2022) 
 
 The following settings are recommended for 16S Bacterial F515/R806 primers (Caporaso et al. 2011): 
 - In mjolnir2_FREYJA: Lmin=215,Lmax=299 
