@@ -783,7 +783,7 @@ mjolnir5_THOR <- function(lib,cores,tax_dir,tax_dms_name=NULL,obipath="",run_eco
   message("Read ",length(info)," records")
 
   complete_taxa <- function(fila,info,genus_to_family,family_to_order,class_to_sk,phylum_to_sk,kingdom_to_sk,exceptions) {
-    # for (i in 1:length(info)) {
+    # for (fila in 1:length(info)) {
 
     infofasta <- info[fila]
     # message(infofasta)
@@ -862,25 +862,27 @@ mjolnir5_THOR <- function(lib,cores,tax_dir,tax_dms_name=NULL,obipath="",run_eco
     }
     taxa <- c("superkingdom_name","kingdom_name","phylum_name","class_name",
               "order_name","family_name","genus_name","species_name")
-    na_taxa <- taxa[1:grep(matrix.data["rank",2],taxa)]
-    na_taxa <- na_taxa[is.na(matrix.data[na_taxa,2])]
-
-    matrix.data[na_taxa,2] <- "Correct_manually"
-
-    # inspect if higher rank than order can be filled if they haven't in previous steps
-
-    if (length(na_taxa)>0) {
-      if (grepl("phylum_name",na_taxa) & !grepl("class_name",na_taxa)) {
-        if (matrix.data["class_name",2]%in%taxo_names$class_name) {
-          matrix.data[c("superkingdom_name","kingdom_name","phylum_name"),2] <- taxo_names[taxo_names$class_name==matrix.data["class_name",2],c("superkingdom_name","kingdom_name","phylum_name")]
-        }
-      } else if (grepl("kingdom_name",na_taxa) & !grepl("phylum_name",na_taxa)) {
-        if (matrix.data["phylum_name",2]%in%taxo_names$phylum_name) {
-          matrix.data[c("superkingdom_name","kingdom_name"),2] <- taxo_names[taxo_names$phylum_name==matrix.data["phylum_name",2],c("superkingdom_name","kingdom_name")][1,]
-        }
-      } else if (grepl("superkingdom_name",na_taxa) & !grepl("kingdom_name",na_taxa)) {
-        if (matrix.data["kingdom_name",2]%in%taxo_names$kingdom_name) {
-          matrix.data[c("superkingdom_name"),2] <- taxo_names[taxo_names$kingdom_name==matrix.data["kingdom_name",2],c("superkingdom_name")]
+    if (matrix.data["rank",2]!='root') {
+      na_taxa <- taxa[1:grep(matrix.data["rank",2],taxa)]
+      na_taxa <- na_taxa[is.na(matrix.data[na_taxa,2])]
+      
+      matrix.data[na_taxa,2] <- "Correct_manually"
+      
+      # inspect if higher rank than order can be filled if they haven't in previous steps
+      
+      if (length(na_taxa)>0) {
+        if (grepl("phylum_name",na_taxa) & !grepl("class_name",na_taxa)) {
+          if (matrix.data["class_name",2]%in%taxo_names$class_name) {
+            matrix.data[c("superkingdom_name","kingdom_name","phylum_name"),2] <- taxo_names[taxo_names$class_name==matrix.data["class_name",2],c("superkingdom_name","kingdom_name","phylum_name")]
+          }
+        } else if (grepl("kingdom_name",na_taxa) & !grepl("phylum_name",na_taxa)) {
+          if (matrix.data["phylum_name",2]%in%taxo_names$phylum_name) {
+            matrix.data[c("superkingdom_name","kingdom_name"),2] <- taxo_names[taxo_names$phylum_name==matrix.data["phylum_name",2],c("superkingdom_name","kingdom_name")][1,]
+          }
+        } else if (grepl("superkingdom_name",na_taxa) & !grepl("kingdom_name",na_taxa)) {
+          if (matrix.data["kingdom_name",2]%in%taxo_names$kingdom_name) {
+            matrix.data[c("superkingdom_name"),2] <- taxo_names[taxo_names$kingdom_name==matrix.data["kingdom_name",2],c("superkingdom_name")]
+          }
         }
       }
     }
