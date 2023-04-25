@@ -242,10 +242,11 @@ mjolnir8_RAGNAROC <- function(lib,metadata_table="",output_file="",output_file_E
     new_sample_names_ESV <- sample_db$original_samples[match(sample_names_ESV,sample_db$mjolnir_agnomens)]
     new_sample_names_ESV[is.na(new_sample_names_ESV)] <- gsub("^","EMPTY",as.character(c(1:sum(is.na(new_sample_names_ESV)))))
     names(ESV_data_initial)[sample_cols_ESV] <- new_sample_names_ESV
+    message(c(colnames(ESV_data_initial) %in% sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)]))
+    message(colnames(ESV_data_initial))
 
     neg_samples <- ESV_data_initial[,c(colnames(ESV_data_initial) %in% sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)])]
     # neg_samples <- ESV_data_initial[,sample_cols_ESV[grepl(paste0(sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)],collapse = "|"),new_sample_names_ESV)]]
-    message(head(neg_samples))
     
     # remove neg samples
     if (dim(neg_samples)[2]>0) {
