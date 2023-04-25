@@ -266,6 +266,7 @@ mjolnir8_RAGNAROC <- function(lib,metadata_table="",output_file="",output_file_E
   # remove blank and NEG samples
   if (dim(neg_samples)[2]>0) {
     message("RAGNAROC will remove any MOTU for which abundance in the blank or negative controls was higher than 10% of its total read abundance")
+    message("The samples used in this steps as blanks are: ", colnames(neg_samples))
     neg_reads <- rowSums(neg_samples)
     if (!ESV_within_MOTU) {
       sample_reads <- rowSums(db[,sample_cols])
