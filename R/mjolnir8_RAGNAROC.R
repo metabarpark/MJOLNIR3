@@ -175,7 +175,7 @@ mjolnir8_RAGNAROC <- function(lib,metadata_table="",output_file="",output_file_E
   # Remove bacteria
   if (remove_bacteria) {
     message("RAGNAROC is removing bacterial MOTUs now.")
-    bacteria_removed <- sum(db$superkingdom_name == "Prokaryota" | db$SCIENTIFIC_NAME == "root")
+    bacteria_removed <- sum(c(db$superkingdom_name == "Prokaryota" | db$SCIENTIFIC_NAME == "root"),na.rm = T)
     db <- db[(db$superkingdom_name != "Prokaryota" & db$SCIENTIFIC_NAME != "root"),]
   }
 
@@ -231,6 +231,7 @@ mjolnir8_RAGNAROC <- function(lib,metadata_table="",output_file="",output_file_E
   # sample_names <- new_sample_names[!grepl(paste0(sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)],collapse = "|"),new_sample_names)]
   sample_names <- sample_names[!grepl("EMPTY",sample_names)]
   sample_cols <- match(sample_names,colnames(db))
+  sample_cols <- sample_cols[!is.na(sample_cols)]
   
   # same for ESVs
   if (ESV_within_MOTU) {
@@ -242,8 +243,6 @@ mjolnir8_RAGNAROC <- function(lib,metadata_table="",output_file="",output_file_E
     new_sample_names_ESV <- sample_db$original_samples[match(sample_names_ESV,sample_db$mjolnir_agnomens)]
     new_sample_names_ESV[is.na(new_sample_names_ESV)] <- gsub("^","EMPTY",as.character(c(1:sum(is.na(new_sample_names_ESV)))))
     names(ESV_data_initial)[sample_cols_ESV] <- new_sample_names_ESV
-    message(c(colnames(ESV_data_initial) %in% sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)]))
-    message(colnames(ESV_data_initial))
 
     neg_samples <- ESV_data_initial[,c(colnames(ESV_data_initial) %in% sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)])]
     # neg_samples <- ESV_data_initial[,sample_cols_ESV[grepl(paste0(sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)],collapse = "|"),new_sample_names_ESV)]]
@@ -259,6 +258,7 @@ mjolnir8_RAGNAROC <- function(lib,metadata_table="",output_file="",output_file_E
       # sample_names <- new_sample_names_ESV[!grepl(paste0(sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)],collapse = "|"),new_sample_names_ESV)]
       sample_names_ESV <- new_sample_names[!grepl("EMPTY",new_sample_names)]
       sample_cols_ESV <- match(sample_names_ESV,colnames(ESV_data_initial))
+      sample_cols_ESV <- sample_cols_ESV[!is.na(sample_cols_ESV)]
     }
   }
 
@@ -268,7 +268,7 @@ mjolnir8_RAGNAROC <- function(lib,metadata_table="",output_file="",output_file_E
   # remove blank and NEG samples
   if (dim(neg_samples)[2]>0) {
     message("RAGNAROC will remove any MOTU for which abundance in the blank or negative controls was higher than 10% of its total read abundance")
-    message("The samples used in this steps as blanks are: ", colnames(neg_samples))
+    message("The samples used in this steps as blanks are: ", paste(colnames(neg_samples),collapse = ', '))
     neg_reads <- rowSums(neg_samples)
     if (!ESV_within_MOTU) {
       sample_reads <- rowSums(db[,sample_cols])
