@@ -175,7 +175,7 @@ mjolnir8_RAGNAROC <- function(lib,metadata_table="",output_file="",output_file_E
   # Remove bacteria
   if (remove_bacteria) {
     message("RAGNAROC is removing bacterial MOTUs now.")
-    bacteria_removed <- sum(db$superkingdom_name == "Prokaryota" | db$SCIENTIFIC_NAME == "root")
+    bacteria_removed <- sum(c(db$superkingdom_name == "Prokaryota" | db$SCIENTIFIC_NAME == "root"),na.rm = T)
     db <- db[(db$superkingdom_name != "Prokaryota" & db$SCIENTIFIC_NAME != "root"),]
   }
 
@@ -217,18 +217,22 @@ mjolnir8_RAGNAROC <- function(lib,metadata_table="",output_file="",output_file_E
   # get negatives/blanks from MOTUs if not ESV_within_MOTU so the filter will 
   # be done with the ESV, not with MOTUs
   if (!ESV_within_MOTU) {
-    neg_samples <- db[,sample_cols[grepl(paste0(sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)],collapse = "|"),new_sample_names)]]
+    neg_samples <- db[,c(colnames(db) %in% sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)])]
+    # neg_samples <- db[,sample_cols[grepl(paste0(sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)],collapse = "|"),new_sample_names)]]
   }
-
+  
   # remove negs and empties
-  db <- db[,-sample_cols[grepl(paste0(sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)],collapse = "|"),new_sample_names)]]
+  db <- db[,!c(colnames(db) %in% sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)])]
+  # db <- db[,-sample_cols[grepl(paste0(sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)],collapse = "|"),new_sample_names)]]
   db <- db[,!grepl("EMPTY",colnames(db))]
 
   # correct sample identifiers
-  sample_names <- new_sample_names[!grepl(paste0(sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)],collapse = "|"),new_sample_names)]
+  sample_names <- new_sample_names[!c(new_sample_names %in% sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)])]
+  # sample_names <- new_sample_names[!grepl(paste0(sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)],collapse = "|"),new_sample_names)]
   sample_names <- sample_names[!grepl("EMPTY",sample_names)]
   sample_cols <- match(sample_names,colnames(db))
-
+  sample_cols <- sample_cols[!is.na(sample_cols)]
+  
   # same for ESVs
   if (ESV_within_MOTU) {
     # Select sample abundance columns
@@ -240,28 +244,31 @@ mjolnir8_RAGNAROC <- function(lib,metadata_table="",output_file="",output_file_E
     new_sample_names_ESV[is.na(new_sample_names_ESV)] <- gsub("^","EMPTY",as.character(c(1:sum(is.na(new_sample_names_ESV)))))
     names(ESV_data_initial)[sample_cols_ESV] <- new_sample_names_ESV
 
-    neg_samples <- ESV_data_initial[,sample_cols_ESV[grepl(paste0(sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)],collapse = "|"),new_sample_names_ESV)]]
-
+    neg_samples <- ESV_data_initial[,c(colnames(ESV_data_initial) %in% sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)])]
+    # neg_samples <- ESV_data_initial[,sample_cols_ESV[grepl(paste0(sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)],collapse = "|"),new_sample_names_ESV)]]
+    
     # remove neg samples
     if (dim(neg_samples)[2]>0) {
       # remove negs and empties
-      ESV_data_initial <- ESV_data_initial[,-sample_cols_ESV[grepl(paste0(sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)],collapse = "|"),new_sample_names_ESV)]]
+      ESV_data_initial <- ESV_data_initial[,!c(colnames(ESV_data_initial) %in% sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)])]
+      # ESV_data_initial <- ESV_data_initial[,-sample_cols_ESV[grepl(paste0(sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)],collapse = "|"),new_sample_names_ESV)]]
       ESV_data_initial <- ESV_data_initial[,!grepl("EMPTY",colnames(ESV_data_initial))]
       # correct sample identifiers
-      sample_names <- new_sample_names_ESV[!grepl(paste0(sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)],collapse = "|"),new_sample_names_ESV)]
+      sample_names <- new_sample_names_ESV[!c(new_sample_names_ESV %in% sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)])]
+      # sample_names <- new_sample_names_ESV[!grepl(paste0(sample_db$original_samples[as.character(sample_db[,blank_col])==as.character(blank_tag)],collapse = "|"),new_sample_names_ESV)]
       sample_names_ESV <- new_sample_names[!grepl("EMPTY",new_sample_names)]
       sample_cols_ESV <- match(sample_names_ESV,colnames(ESV_data_initial))
+      sample_cols_ESV <- sample_cols_ESV[!is.na(sample_cols_ESV)]
     }
   }
 
   # db[1,"09_12_M2_A_C"] <- 10000000000000
-
-
-
+  
   # Filter 1. remove any MOTU for which abundance in the blank or negative controls was higher than 10% of its total read abundance
   # remove blank and NEG samples
   if (dim(neg_samples)[2]>0) {
     message("RAGNAROC will remove any MOTU for which abundance in the blank or negative controls was higher than 10% of its total read abundance")
+    message("The samples used in this steps as blanks are: ", paste(colnames(neg_samples),collapse = ', '))
     neg_reads <- rowSums(neg_samples)
     if (!ESV_within_MOTU) {
       sample_reads <- rowSums(db[,sample_cols])
@@ -297,8 +304,12 @@ mjolnir8_RAGNAROC <- function(lib,metadata_table="",output_file="",output_file_E
     db <- db[db$COUNT >= min_reads,]
   } else {
     rownames(ESV_data_initial) <- ESV_data_initial$ID
-
-    change_matrix <- do.call("cbind",apply(ESV_data_initial[,sample_cols_ESV], 2, relabund, min_relative=min_relative)) & ESV_data_initial[,sample_cols_ESV]>0
+    
+    change_matrix <- apply(ESV_data_initial[,sample_cols_ESV], 2, relabund, min_relative=min_relative)
+    if (!is.array(change_matrix)) {
+      change_matrix <- do.call("cbind",change_matrix)
+    }
+    change_matrix <- change_matrix & ESV_data_initial[,sample_cols_ESV]>0
 
     relabund_changed <- data.frame(ESV_id_modified = rownames(change_matrix[rowSums(change_matrix)>0,]),
                                    samples = vapply(rownames(change_matrix[rowSums(change_matrix)>0,]), function(x,change_matrix){
@@ -321,7 +332,7 @@ mjolnir8_RAGNAROC <- function(lib,metadata_table="",output_file="",output_file_E
 
       no_numts_data <- c()
       numts_seqs <- c()
-
+  
       number_of_motus <- length(unique(ESV_data_initial$MOTU))
       motu_taxa <- data.frame("id" = db$id, "Metazoa" = c(db$kingdom_name == "Metazoa" & !is.na(db$kingdom_name)))
       numts_ESV <- parallel::mclapply(1:number_of_motus,function(i,ESV_data_initial,motu_taxa){
@@ -333,7 +344,7 @@ mjolnir8_RAGNAROC <- function(lib,metadata_table="",output_file="",output_file_E
         return(newlist)
       },ESV_data_initial=ESV_data_initial,motu_taxa=motu_taxa,mc.cores = cores)
       numts_ESV <- do.call("rbind",numts_ESV)
-      ESV_data_initial <- ESV_data_initial[ESV_data_initial$ID %in% numts_ESV$id,]
+      ESV_data_initial <- ESV_data_initial[!ESV_data_initial$ID %in% numts_ESV$id,]
       message("numts removed")
     }
     db <- db[db$id %in% unique(ESV_data_initial$MOTU),]
@@ -354,77 +365,80 @@ mjolnir8_RAGNAROC <- function(lib,metadata_table="",output_file="",output_file_E
   if (ESV_within_MOTU){
     write.table(ESV_data_initial,output_file_ESV,row.names = F,sep="\t",quote = F)
   }
-  message("After RAGNAROC, MJOLNIR is done. File: ",output_file, " written with ",nrow(db_new), " MOTUs and ",sum(db_new$total_reads)," total reads.")
+  message("After RAGNAROC, MJOLNIR is done. File: ",output_file, " written with ",nrow(db), " MOTUs and ",sum(db$total_reads)," total reads.")
 
-  sink("RAGNAROC_summary_report.txt")
-  cat(paste0("Dear friend,\n",
+  RAGNAROC_report <- paste("Dear friend,\n",
              "you have succesfully arrived at the end of RAGNAROC. You've meet gods and took their help to twist the data to your will.\n",
              "After RAGNAROC the rest is up to you. Don't lose the faith in your experiment, the end is near but new paths will open below your feet.\n",
              "Please don't forget to cite and thank the two dwarfs Cindri and Brok, AKA Owen and Adria, for the forge of my self.\n",
              "MJOLNIR.\n",
-             "P.S.: See below for a small summary of your journey.\n"))
+             "P.S.: See below for a small summary of your journey.\n")
   if (FREYJA) {
     if (as.logical(variables_FREYJA["demultiplexed",2])) {
-      cat(paste0("You started FREYJA with your samples allready demultiplexed and with the following sequences for each file \n"))
+      RAGNAROC_report <- paste(RAGNAROC_report, "You started FREYJA with your samples allready demultiplexed and with the following sequences for each file \n")
       do.call("rbind",before_FREYJA)
     } else{
-      cat(paste0("You started FREYJA with the following sequences for each file \n"))
+      RAGNAROC_report <- paste(RAGNAROC_report, "You started FREYJA with the following sequences for each file \n")
       do.call("rbind",lapply(before_FREYJA,function(x)do.call("rbind",x)))
     }
-    cat(paste0("You used ",variables_FREYJA["cores",2]," cores to aling your sequences. You choosed those sequences with a quality score of more than ",variables_FREYJA["score_obialign",2],".\n",
+    RAGNAROC_report <-  paste(RAGNAROC_report, "You used",variables_FREYJA["cores",2]," cores to aling your sequences. You choosed those sequences with a quality score of more than",variables_FREYJA["score_obialign",2],".\n",
                "You assign each sequence to a sample name and removed the primer's sequences.\n",
-               "Finally in FREYJA you just kept those sequences with A, G, T or C's and with a sequence length between ",variables_FREYJA["Lmin",2]," and ",variables_FREYJA["Lmax",2]," bp.\n",
-               "The resulting files had the following stats:\n"))
+               "Finally in FREYJA you just kept those sequences with A, G, T or C's and with a sequence length between",variables_FREYJA["Lmin",2],"and",variables_FREYJA["Lmax",2],"bp.\n",
+               "The resulting files had the following stats:\n")
     as.data.frame(pivot_wider(do.call("rbind",after_FREYJA),names_from = "version",values_from = "num_seqs"))
   } else {
-    cat("Sorry but I couldn't find a summary of your FREYJA process")
+    RAGNAROC_report <-  paste(RAGNAROC_report, "Sorry but I couldn't find a summary of your FREYJA process \n")
   }
   if (HELA) {
-    cat(paste0("HELA removed the chimeras with the uchime_denovo algorithm and kept for each sample the following number of non-chimeras:\n"))
+    RAGNAROC_report <-  paste(RAGNAROC_report, "HELA removed the chimeras with the uchime_denovo algorithm and kept for each sample the following number of non-chimeras:\n")
     after_HELA
   } else {
-    cat("Sorry but I couldn't find a summary of your HELA process")
+    RAGNAROC_report <-  paste(RAGNAROC_report, "Sorry but I couldn't find a summary of your HELA process \n")
   }
   if (ODIN) {
-    cat(paste0("ODIN was used to obtain meaningful units. In your case you chose the ",algorithm," algorithm.\n"))
+    RAGNAROC_report <-  paste(RAGNAROC_report, "ODIN was used to obtain meaningful units. In your case you chose the ",algorithm," algorithm.\n")
     if (algorithm=="dnoise_swarm" | algorithm=="dnoise") {
-      cat(paste0("ODIN used DnoisE to obtain the ESV's of your samples running within them with the following options:\n"))
+      RAGNAROC_report <-  paste(RAGNAROC_report, "ODIN used DnoisE to obtain the ESV's of your samples running within them with the following options:\n")
       if (!is.logical(entropy)) {
-        cat(paste0("Entropy correction with sequences delimited to a multiple of 313bp, alpha ",alpha," and minimum number of reads of ",min_reads_ESV,"\n"))
+        RAGNAROC_report <-  paste(RAGNAROC_report, "Entropy correction with sequences delimited to a multiple of 313bp, alpha",alpha,"and minimum number of reads of",min_reads_ESV,"\n")
       } else {
-        cat(paste0("Alpha ",alpha," and minimum number of reads of ",min_reads_ESV,"\n"))
+        RAGNAROC_report <-  paste(RAGNAROC_report, "Alpha",alpha,"and minimum number of reads of",min_reads_ESV,"\n")
       }
     }
     if (algorithm=="dnoise_swarm"  | algorithm=="swarm" | algorithm=="swarm_dnoise") {
-      cat(paste0("ODIN joined all the sequences, obtained the unique ones and applied swarm to obtain the MOTUs. Before SWARM you had",after_2_ODIN$values[after_ODIN$version==seq_id]," sequences and at the end you obtained the following stats: \n"))
-      after_4a_ODIN
+      if (exists("after_2_ODIN")&exists("after_4a_ODIN")) {
+        RAGNAROC_report <-  paste(RAGNAROC_report, "ODIN joined all the sequences, obtained the unique ones and applied swarm to obtain the MOTUs. Before SWARM you had",after_2_ODIN$values[after_2_ODIN$version=="seq_id"],"sequences and at the end you obtained the following stats: \n")
+      }
     } else{
-      cat(paste0("The samples were then grouped and the unique sequences obtained being ",after_2_ODIN$values[after_ODIN$version==seq_id]," sequences in total.\n"))
+      if (exists("after_2_ODIN")) {
+        RAGNAROC_report <-  paste(RAGNAROC_report, "The samples were then grouped and the unique sequences obtained being",after_2_ODIN$values[after_2_ODIN$version=="seq_id"],"sequences in total.\n")
+      }
     }
     if (algorithm=="swarm_dnoise") {
-      cat(paste0("ODIN used DnoisE to obtain the ESV's of your samples running within them with the following options:\n"))
+      RAGNAROC_report <-  paste(RAGNAROC_report, "ODIN used DnoisE to obtain the ESV's of your samples running within them with the following options:\n")
       if (run_entropy) {
-        cat(paste0("Entropy correction (",entropy,"), alpha ",alpha," and minimum number of reads of ",min_reads_ESV,"\n"))
+        RAGNAROC_report <-  paste(RAGNAROC_report, "Entropy correction (",entropy,"), alpha ",alpha," and minimum number of reads of ",min_reads_ESV,"\n")
       } else {
-        cat(paste0("Alpha ",alpha," and minimum number of reads of ",min_reads_ESV,"\n"))
+        RAGNAROC_report <-  paste(RAGNAROC_report, "Alpha ",alpha," and minimum number of reads of ",min_reads_ESV,"\n")
       }
     }
   } else {
-    cat("Sorry but I couldn't find a summary of your ODIN process")
+    RAGNAROC_report <-  paste(RAGNAROC_report, "Sorry but I couldn't find a summary of your ODIN process \n")
   }
   if (LOKI) {
-    cat(paste0("LOKI used LULU to search for potential pseudogenes and found ",num_discarded," OTUs that were discarded.\n"))
-    after_HELA
+    RAGNAROC_report <-  paste(RAGNAROC_report, "LOKI used LULU to search for potential pseudogenes and found ",num_discarded," OTUs that were discarded.\n")
   } else {
-    cat("Sorry but I couldn't find a summary of your LOKI process")
+    RAGNAROC_report <-  paste(RAGNAROC_report, "Sorry but I couldn't find a summary of your LOKI process\n")
   }
-  cat(paste0("During RAGNAROC some filters were applied."))
-  if (remove_bacteria) cat(paste0(bacteria_removed," bacteria were removed"))
-  if (remove_contamination) cat(paste0("contaminations were removed"))
-  if (dim(neg_samples)[2]>0) cat(paste0(data_neg_filt_deleted,ifelse(ESV_within_MOTU," ESV"," MOTU")," were removed by neg/blank filter"))
-  cat(paste0("The relative abundance filter of ",min_relative," within samples had effect on the following id's and samples:"))
-  relabund_changed
-  if (ESV_within_MOTU&remove_numts) cat(paste0("The numts filter found ",numts_ESV," numts that were removed."))
+  RAGNAROC_report <-  paste(RAGNAROC_report, "During RAGNAROC some filters were applied.")
+  if (remove_bacteria) RAGNAROC_report <-  paste(RAGNAROC_report, bacteria_removed," bacteria were removed\n")
+  if (remove_contamination) RAGNAROC_report <-  paste(RAGNAROC_report, "contaminations were removed\n")
+  if (dim(neg_samples)[2]>0) RAGNAROC_report <-  paste(RAGNAROC_report, data_neg_filt_deleted,ifelse(ESV_within_MOTU," ESV"," MOTU")," were removed by neg/blank filter\n")
+  RAGNAROC_report <-  paste(RAGNAROC_report, "The relative abundance filter of ",min_relative," within samples had effect on the following id's and samples:\n")
+  RAGNAROC_report <-  paste(c(RAGNAROC_report,relabund_changed))
+  if (ESV_within_MOTU&remove_numts) RAGNAROC_report <-  paste(RAGNAROC_report, "The numts filter found",numts_ESV,"numts that were removed.\n")
+  sink("RAGNAROC_summary_report.txt")
+  cat(RAGNAROC_report)
   sink()
 }
 
@@ -467,7 +481,7 @@ numts<-function(datas, is_metazoa=FALSE, motu, datas_length)
   stops<-matrix(NA,dim(datas)[1],20)
   aa_xung<-matrix(NA,dim(datas)[1],20)
   seq<-DNAStringSet(datas$NUC_SEQ)
-  seq<-DNAStringSet(seq,start=2,end=nchar(seq[1]))
+  seq<-DNAStringSet(seq,start=2,end=nchar(datas$NUC_SEQ[1]))
 
   for (qq in mitochondrial_GC){
     code<-getGeneticCode(as.character(GENETIC_CODE_TABLE$id[qq]))

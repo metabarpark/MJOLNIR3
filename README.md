@@ -57,7 +57,9 @@ MJOLNIR3 depends on the following dependencies, which must be installed in the s
         # clone MJOLNIR3 repository
         git clone https://github.com/metabarpark/MJOLNIR3.git
         cd MJOLNIR3
-        # installation of Obitools3
+        # installation of Obitools3 
+        # if you have problems with cmake, you can install it with conda
+        # conda install cmake
         git clone https://git.metabarcoding.org/obitools/obitools3.git
         cd obitools3
         pip3 install cython
@@ -133,6 +135,10 @@ The following settings are recommended for 18S All_shorts primers (Guardiola et 
 - In mjolnir2_FREYJA: Lmin=75,Lmax=180 
 - In mjolnir4_ODIN: d=1,algorithm="SWARM"
 
+The following settings are recommended for 18S V1-V2 SSUF04 (Blaxter et al. 1998) SSURmod (Sinniger et al. 2016) primers: 
+- In mjolnir2_FREYJA: Lmin=300,Lmax=500, primer_F="GCTTGTCTCAAAGATTAAGCC", primer_R="CCTGCTGCCTTCCTTRGA" ([Günter et al 2021](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8366523/)) 
+- In mjolnir4_ODIN: d=4 ([Günter et al 2021](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8366523/)), algorithm="DnoisE_SWARM", entopy=FALSE, alpha=2 (default value for UNOISE used in [Sterrer et al. 2022](https://www.mdpi.com/1424-2818/14/5/382)) 
+
 The following settings are recommended for 16S Bacterial F515/R806 primers (Caporaso et al. 2011): 
 - In mjolnir2_FREYJA: Lmin=215,Lmax=299 
 - In mjolnir4_ODIN: d=1,algorithm="SWARM"
@@ -142,7 +148,7 @@ The following settings are recommended for 16S Bacterial F515/R806 primers (Capo
 This is a simplified scheme of the MJOLNIR3 workflow:
 
 <p align="center" width="400">
-  <img src="https://github.com/adriantich/MJOLNIR3/blob/main/workflow_main.png">
+  <img src="https://github.com/adriantich/MJOLNIR3/blob/main/workflow.png">
 </p>
 
 <B>0. Input data</B>
@@ -173,27 +179,38 @@ MJOLNIR3 uses the mjolnir3_HELA() function to call the uchime_denovo algorithm i
 <B>4. ODIN: OTU Delimitation Inferred by Networks</B>
 
 The function mjolnir4_ODIN() uses the four different strategies to delimit MOTUs and/or ESVs. This strategies are set with the algorithm parameter: a)"DnoisE_SWARM", b)"SWARM", c)"SWARM_DnoisE" and d)"DnoisE". In short, DnoisE refers to the denoising process with DnoisE to obtain ESV and SWARM to a clustering process with SWARM to obtain MOTUs. 
-DnoisE is a software to merge spurious sequences into their "mothers" (see Antich et al. 2022) to obtain Exact (also Amplicon) Sequence variants. DnoisE is an open source and parallelizable alternative to Unoise that allows to introduce an entropy correction based on the different entropies of each position in the codon of coding genes. This is highly recommended for markers as COI for which this program was intended. However, with the entropy=FALSE parameter, this programs performs the same denoising procedure as described for Unoise3.
-SWARM is an algorithm to delimit MOTUs, based on linkage-networks created by step-by-step agregation. This clustering algorithm is not based on an arbitrary, constant, absolute identity threshold. Conversely, SWARM is based on an iterative aggregation of sequences that differ less than a given distance d. This strategy results into linkage-networks of different sizes, which can have different effective values for within-MOTU identity threshold, depending on the complexity of the natural variability of the sequences present in the sample. This procedure is very convenient in the case of hypervariable metabarcoding markers, such as COI, which usually feature extremely high levels of natural diversity, in addition to the random sequencing errors. 
 
-## WARNING!! From here and below, the README.md file is not updated. Please do not take this into account, we are working on it!
+DnoisE is a software to merge spurious sequences into their "mothers" (see Antich et al. 2022) to obtain Exact (also Amplicon) Sequence variants. DnoisE is an open source and parallelizable alternative to Unoise that allows to introduce an entropy correction based on the different entropies of each position in the codon of coding genes. This is highly recommended for markers as COI for which this program was intended. However, with the entropy=FALSE parameter, this programs performs the same denoising procedure as described for Unoise3. The parameter entropy can have four different options, you can run the help manual of the funtion in R console for further details.
 
-After removing the chimaeras from every sample, HELA joins all the samples again, and de-replicates the sequences. Then creates new sequence identifiers for all different sequence variants found, and generates two outputs: (1) a fasta file with total abundances (ending in .vsearch.fasta) ready to be fed into Swarm for the clustering step, and (2) a table including the abundance information of all sequence variants in every sample. 
+SWARM is an algorithm to delimit MOTUs, based on linkage-networks created by step-by-step agregation. This clustering algorithm is not based on an arbitrary, constant, absolute identity threshold. Conversely, SWARM is based on an iterative aggregation of sequences that differ less than a given distance d. This strategy results into linkage-networks of different sizes, which can have different effective values for within-MOTU identity threshold, depending on the complexity of the natural variability of the sequences present in the sample. This procedure is very convenient in the case of hypervariable metabarcoding markers, such as COI, which usually feature extremely high levels of natural diversity, in addition to the random sequencing errors. In all algorithms that use SWARM to cluster sequences will have a step just before running SWARM where all samples are concatenated and sequences are de-replicated and named with a new and standardized identifier (This file that does not appear in the figure is named EXPX_ODIN.fasta)
 
-Moreover, the resulting networks are very convenient for further processing of metaphylogeography datasets (Turon et al. 2019). In the future, mjolnir4_ODIN() will be able to produce ESV tables (a proxy for haplotypes) using the option generate_ESV=TRUE and several option to denoising the data. However, this option is still in beta test and it has not been properly implemented yet. 
-mjolnir4_ODIN() takes the LIBX.vsearch.fasta file produced by HELA, as an input. Then it uses the table with read abundances by sample to compute the combined abundance of the resulting MOTUs in every individual sample. The output is a CSV file with contains a row for each MOTU, with its abundances in every sample. Also, a fasta file including the representative sequences of each MOTU (usually only non-singleton MOTUs are included) is generated, which will be used for taxonomic assignment in the next step.
+<B>[3] The GREEN WAY</B> (in the figure) will retrieve in at the end of the pipeline the MOTUs and the ESVs within each MOTU. To do so, algorithm must be set to "DnoisE_SWARM" or to "SWARM_DnoisE". In these cases the file named EXPX_ODIN_counts.tsv file will contain the representative sequences for each MOTU and the EXPX_ODIN_ESV.tsv file will have the ESVs for each MOTU. If you choose to run the "DnoisE" algorithm, then only the EXPX_ODIN_ESV.tsv file (dashed line in the figure) will be retrieved and will be used in FRIGGA to perform the recount after the taxonomic assignament.
 
 <B>5. THOR: Taxonomy with Higher-than-Order Ranks</B>
 
-Taxonomic assignment is performed with the mjolnir5_THOR() function, which is a wrapper of ecotag (Boyer et al. 2016) and owi_add_taxonomy (Wangensteen & Turon 2017). This step depends on the availability of a taxonomic database in ecoPCR format (from which the phylogenetic tree information is retrieved) and a reference database file including sequences for the exclusively metabarcoded fragment, conveniently identified by a taxonomic identifier (taxid), in fasta format. These can be downloaded from our DUFA repository: https://github.com/uit-metabarcoding/DUFA. mjolnir5_THOR then uses a custom procedure to assign higher taxonomic ranks (higher than order). These taxonomic ranks are stored in a csv file called "order_complete.csv", which is customizable to meet the particular preferences of the user. This is specially useful for assigning the higher ranks of microeukaryotes, whis is remarkably unstable and there is not universally-accepted consensus. 
+Taxonomic assignment is performed with the mjolnir5_THOR() function, which is a wrapper of ecotag (Boyer et al. 2016) and owi_add_taxonomy (Wangensteen & Turon 2017). This step depends on the availability of a taxonomic database in taxo_obidms format (from which the phylogenetic tree information is retrieved) and a reference database file including sequences for the exclusively metabarcoded fragment, conveniently identified by a taxonomic identifier (taxid), in fasta format. 
+
+A subproject of MJOLNIR3 to create these objects can be found in NJOLDR-MJOLNIR3 repository ([https://github.com/adriantich/NJORDR-MJOLNIR3](https://github.com/adriantich/NJORDR-MJOLNIR3)). However this repository is still in development. A reference database object already available for MJOLNIR3 when using COI marker can be downloaded from our DUFA drive ([https://drive.google.com/drive/folders/1dVfZYCwoIK6D2V7adhF4xt85WdxzUys7?usp=share_link](https://drive.google.com/drive/folders/1dVfZYCwoIK6D2V7adhF4xt85WdxzUys7?usp=share_link)). When setting ecotag=FALSE, an external to MJOLNIR3 taxonomic assignament can be performed and then follow the pipeline. However, be aware that the file format and the tags for each sequence follows the following example and the files are named as EXPX_THOR_XX.fasta:
+
+      >ULOY_000000028 superkingdom=2759; phylum_name=Cnidaria; genus=89881; species=165097; family=46724; kingdom=33208; ID_STATUS=True; BEST_MATCH_IDS=['DUFA-COLR-000000000165097-H00000001']; kingdom_name=Metazoa; genus_name=Agaricia; COUNT=1; phylum=6073; BEST_MATCH_TAXIDS=[165097]; order_name=Scleractinia; superkingdom_name=Eukaryota; SCIENTIFIC_NAME=Agaricia fragilis; TAXID=165097; BEST_IDENTITY=0.723404255319149; family_name=Agariciidae; class=6101; class_name=Anthozoa; species_name=Agaricia fragilis; order=6125; 
+      gatgtctggaaaagaaggcactccaggaatgtcaatggacatggcgatattatctctcca
+      cttagcaggagcgtcttcgatcctaggagctgctaatttcataacgaccatttttaatat
+      gcgagctcctggaatgactttacatcgcatgcctttgtttgcgtggtcaattcttataac
+      agcatttttacttttattagcattacccgtcttggccggggccataacgatgcttttaac
+      cgaccgaaattttggaacgacgttctttattccatcaggtggtggggatccaatattatt
+      cctgcatcttttc
+
+mjolnir5_THOR then uses a custom procedure to assign higher taxonomic ranks (higher than order). These taxonomic ranks are stored in a csv file called "order.complete.csv", which is customizable to meet the particular preferences of the user. This is specially useful for assigning the higher ranks of microeukaryotes, whis is remarkably unstable and there is not universally-accepted consensus. 
 
 <B>6. FRIGGA: Final Recount and Integration of Generated Genealogies and Abundances</B>
 
-The function mjolnir6_FRIGGA() will join the taxonomic information obtained by THOR with the information of abundances per sample calculated by ODIN. FRIGGA will create an output CSV file ending in .All_MOTUs.csv. In the future, FRIGGA will have a more important role in integrating MOTU-level data with ESV-level data (species and haplotypes), but this option still needs implementation. 
+The function mjolnir6_FRIGGA() will join the taxonomic information obtained by THOR with the information of abundances per sample calculated by ODIN. FRIGGA will create an output CSV file named EXPX_FRIGGA.tsv. 
 
 <B>7. LOKI: LULU Overseeing with Kinship Identification </B>
 
-The next step of MJOLNIR3 is the removal of pseudogenes using the mjolnir7_LOKI() function. This is a wrapper of the LULU algorithm. The information about the removed putative pseudogene MOTUs is also stored as an additional output file, together with the information of their possible mother sequences. This file can be checked to assess the taxonomic coherence of the results. A .curated.csv file is created.
+The next step of MJOLNIR3 is the removal of possible remaining errors using the mjolnir7_LOKI() function. This is a wrapper of the LULU algorithm. The information about the removed putative errors is also stored as an additional output file, together with the information of their possible mother sequences. This file can be checked to assess the taxonomic coherence of the results. A EXPX_LOKI_curated.csv file is created.
+
+## WARNING!! From here and below, the README.md file is not updated. Please do not take this into account, we are working on it!
 
 <B>8. RAGNAROC: Replace AGnomens with Names And Recover Original Codification</B>
 
