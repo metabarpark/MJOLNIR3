@@ -899,8 +899,8 @@ mjolnir5_THOR <- function(lib,cores,tax_dir,tax_dms_name=NULL,obipath="",run_eco
 
     db.out[1,] <- matrix.data[match(columns,rownames(matrix.data)),2]
 
-    print(db.out)
-    # return(db.out)
+    # print(db.out)
+    return(db.out)
   }
 
   db.out <- do.call("rbind",mclapply(1:length(info), complete_taxa,
