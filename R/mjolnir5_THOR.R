@@ -866,7 +866,8 @@ mjolnir5_THOR <- function(lib,cores,tax_dir,tax_dms_name=NULL,obipath="",run_eco
     }
     taxa <- c("superkingdom_name","kingdom_name","phylum_name","class_name",
               "order_name","family_name","genus_name","species_name")
-    na_taxa <- taxa[1:grep(matrix.data["rank",2],taxa)]
+    # trace those taxa with na info in higher taa than assigned. If root there's nothing higher
+    na_taxa <- taxa[ifelse(matrix.data["rank",2]=="root",0,1:grep(matrix.data["rank",2],taxa))]
     na_taxa <- na_taxa[is.na(matrix.data[na_taxa,2])]
 
     matrix.data[na_taxa,2] <- "Correct_manually"
@@ -898,8 +899,8 @@ mjolnir5_THOR <- function(lib,cores,tax_dir,tax_dms_name=NULL,obipath="",run_eco
 
     db.out[1,] <- matrix.data[match(columns,rownames(matrix.data)),2]
 
-    # print(db.out)
-    return(db.out)
+    print(db.out)
+    # return(db.out)
   }
 
   db.out <- do.call("rbind",mclapply(1:length(info), complete_taxa,
