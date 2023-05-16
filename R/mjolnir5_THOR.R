@@ -29,6 +29,13 @@
 #' created during the process. This can save a lot of hard disk space. The FALSE 
 #' option is useful for developing and debugging.
 #' 
+#' @param minimum_circle Numeric. from ecotag: Minimum identity considered for 
+#' the assignment circle (sequence is assigned to the LCA of all sequences 
+#' within a similarity circle of the best matches; the threshold for this circle 
+#' is the highest value between <CIRCLE_THRESHOLD> and the best assignment score 
+#' found for the query sequence). Give value as a normalized identity, e.g. 0.95 
+#' for an identity of 95%.
+#' 
 #' @examples 
 #' library(mjolnir)
 #' 
@@ -66,7 +73,7 @@
 #' # Run THOR
 #' mjolnir5_THOR(lib, cores, tax_dir=tax_dir, tax_dms_name=tax_dms_name, run_ecotag=T)
 
-mjolnir5_THOR <- function(lib,cores,tax_dir,tax_dms_name=NULL,obipath="",run_ecotag=T,remove_DMS=T){
+mjolnir5_THOR <- function(lib,cores,tax_dir,tax_dms_name=NULL,obipath="",run_ecotag=T,remove_DMS=T, minimum_circle=0.7){
 
   old_path <- Sys.getenv("PATH")
   if (is.null(obipath)) obipath <- "~/obi3-env/bin/"
@@ -98,7 +105,7 @@ mjolnir5_THOR <- function(lib,cores,tax_dir,tax_dms_name=NULL,obipath="",run_eco
       X <- c(X,paste0("cd ",lib, "_THOR_",sprintf("%02d",i)," ; ",
                       "obi import --fasta-input ../",lib,"_ODIN_part_",sprintf("%02d",i),".fasta ",tax_dms_name,"/seqs ; ",
                       # "obi import --fasta-input ",lib,"_ODIN_part_",sprintf("%02d",i),".fasta ",lib, "_THOR_",sprintf("%02d",i),"/seqs ; ",
-                      "obi ecotag --taxonomy ",tax_dms_name,"/taxonomy/my_tax -R ",tax_dms_name,"/ref_db ",tax_dms_name,"/seqs ",tax_dms_name,"/assigned_seqs ; ",
+                      "obi ecotag -c ",minimum_circle," --taxonomy ",tax_dms_name,"/taxonomy/my_tax -R ",tax_dms_name,"/ref_db ",tax_dms_name,"/seqs ",tax_dms_name,"/assigned_seqs ; ",
                       "obi annotate --taxonomy ",tax_dms_name,"/taxonomy/my_tax ",
                       " --with-taxon-at-rank superkingdom ",
                       " --with-taxon-at-rank kingdom ",
