@@ -871,10 +871,16 @@ mjolnir5_THOR <- function(lib,cores,tax_dir,tax_dms_name=NULL,obipath="",run_eco
     } else {
       matrix.data["rank",2] <- "root"
     }
-    taxa <- c("superkingdom_name","kingdom_name","phylum_name","class_name",
-              "order_name","family_name","genus_name","species_name")
-    # trace those taxa with na info in higher taa than assigned. If root there's nothing higher
-    na_taxa <- taxa[ifelse(matrix.data["rank",2]=="root",0,1:which(matrix.data["rank",2]==taxa))]
+    taxa <- c("superkingdom","kingdom","phylum","class",
+              "order","family","genus","species")
+    taxa_name <- c("superkingdom_name","kingdom_name","phylum_name","class_name",
+                   "order_name","family_name","genus_name","species_name")
+    # trace those taxa with na info in higher taxa than assigned. If root there's nothing higher
+    if(matrix.data["rank",2]=="root") {
+      na_taxa <- 0
+    } else {
+      na_taxa <- taxa_name[1:which(matrix.data["rank",2]==taxa)]
+    }
     na_taxa <- na_taxa[is.na(matrix.data[na_taxa,2])]
 
     matrix.data[na_taxa,2] <- "Correct_manually"
@@ -903,6 +909,11 @@ mjolnir5_THOR <- function(lib,cores,tax_dir,tax_dms_name=NULL,obipath="",run_eco
     }
 
     if (matrix.data["scientific_name",2] %in% exceptions) matrix.data <- fix_exceptions(matrix.data["scientific_name",2],matrix.data = matrix.data)
+    
+    # make sure superkingdom is correct
+    if (matrix.data["kingdom_name",2] %in% kingdom_to_sk$kingdom_name) {
+      matrix.data["superkingdom_name",2] <- kingdom_to_sk$superkingdom_name[kingdom_to_sk$kingdom_name==matrix.data["kingdom_name",2]]
+    }
 
     db.out[1,] <- matrix.data[match(columns,rownames(matrix.data)),2]
 
