@@ -76,6 +76,7 @@ unzip_files <- function(file,old_path=""){
       file <- str_remove(file,".gz")
     }
   }
+  return(file)
 }
 
 vector_to_split <- function(core_num,total_cores,num_seqs){
