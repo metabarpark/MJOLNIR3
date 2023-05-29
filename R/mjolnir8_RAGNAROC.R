@@ -366,7 +366,10 @@ mjolnir8_RAGNAROC <- function(lib,metadata_table="",output_file="",output_file_E
     write.table(ESV_data_initial,output_file_ESV,row.names = F,sep="\t",quote = F)
   }
   message("After RAGNAROC, MJOLNIR is done. File: ",output_file, " written with ",nrow(db), " MOTUs and ",sum(db$total_reads)," total reads.")
-
+  
+  #####
+  # RAGNAROC REPORT
+  #####
   RAGNAROC_report <- paste("Dear friend,\n",
              "you have succesfully arrived at the end of RAGNAROC. You've meet gods and took their help to twist the data to your will.\n",
              "After RAGNAROC the rest is up to you. Don't lose the faith in your experiment, the end is near but new paths will open below your feet.\n",
@@ -379,19 +382,24 @@ mjolnir8_RAGNAROC <- function(lib,metadata_table="",output_file="",output_file_E
       do.call("rbind",before_FREYJA)
     } else{
       RAGNAROC_report <- paste(RAGNAROC_report, "You started FREYJA with the following sequences for each file \n")
-      do.call("rbind",lapply(before_FREYJA,function(x)do.call("rbind",x)))
+      RAGNAROC_report <- paste0(RAGNAROC_report,paste(apply(do.call("rbind",lapply(before_FREYJA,function(x)do.call("rbind",x))),1,paste, collapse =" : "), collapse = "\n"),"\n")
     }
     RAGNAROC_report <-  paste(RAGNAROC_report, "You used",variables_FREYJA["cores",2]," cores to aling your sequences. You choosed those sequences with a quality score of more than",variables_FREYJA["score_obialign",2],".\n",
                "You assign each sequence to a sample name and removed the primer's sequences.\n",
                "Finally in FREYJA you just kept those sequences with A, G, T or C's and with a sequence length between",variables_FREYJA["Lmin",2],"and",variables_FREYJA["Lmax",2],"bp.\n",
                "The resulting files had the following stats:\n")
-    as.data.frame(pivot_wider(do.call("rbind",after_FREYJA),names_from = "version",values_from = "num_seqs"))
+    RAGNAROC_report <- paste0(RAGNAROC_report,"sample\tfiltered sequences\tuniq sequences\n",
+                              paste(apply(as.data.frame(pivot_wider(do.call("rbind",after_FREYJA),names_from = "version",values_from = "num_seqs")),1,paste0, collapse ="\t"), collapse = "\n"),
+                              "\n")
   } else {
     RAGNAROC_report <-  paste(RAGNAROC_report, "Sorry but I couldn't find a summary of your FREYJA process \n")
   }
   if (HELA) {
     RAGNAROC_report <-  paste(RAGNAROC_report, "HELA removed the chimeras with the uchime_denovo algorithm and kept for each sample the following number of non-chimeras:\n")
-    after_HELA
+    RAGNAROC_report <-  paste0(RAGNAROC_report,"sample\tsequences\n",
+                               paste(apply(after_HELA,1,paste0, collapse ="\t"), collapse = "\n"),
+                               "\n")
+    
   } else {
     RAGNAROC_report <-  paste(RAGNAROC_report, "Sorry but I couldn't find a summary of your HELA process \n")
   }
@@ -430,13 +438,16 @@ mjolnir8_RAGNAROC <- function(lib,metadata_table="",output_file="",output_file_E
   } else {
     RAGNAROC_report <-  paste(RAGNAROC_report, "Sorry but I couldn't find a summary of your LOKI process\n")
   }
-  RAGNAROC_report <-  paste(RAGNAROC_report, "During RAGNAROC some filters were applied.")
+  RAGNAROC_report <-  paste(RAGNAROC_report, "During RAGNAROC some filters were applied.\n")
   if (remove_bacteria) RAGNAROC_report <-  paste(RAGNAROC_report, bacteria_removed," bacteria were removed\n")
   if (remove_contamination) RAGNAROC_report <-  paste(RAGNAROC_report, "contaminations were removed\n")
-  if (dim(neg_samples)[2]>0) RAGNAROC_report <-  paste(RAGNAROC_report, data_neg_filt_deleted,ifelse(ESV_within_MOTU," ESV"," MOTU")," were removed by neg/blank filter\n")
-  RAGNAROC_report <-  paste(RAGNAROC_report, "The relative abundance filter of ",min_relative," within samples had effect on the following id's and samples:\n")
-  RAGNAROC_report <-  paste(c(RAGNAROC_report,relabund_changed))
-  if (ESV_within_MOTU&remove_numts) RAGNAROC_report <-  paste(RAGNAROC_report, "The numts filter found",numts_ESV,"numts that were removed.\n")
+  if (dim(neg_samples)[2]>0) RAGNAROC_report <-  paste(RAGNAROC_report, dim(data_neg_filt_deleted)[1],ifelse(ESV_within_MOTU," ESV"," MOTU")," were removed by neg/blank filter\n")
+  RAGNAROC_report <-  paste(RAGNAROC_report, "The relative abundance filter of ",min_relative," within samples had effect on", dim(relabund_changed)[2],"id's\n")
+  # RAGNAROC_report <-  paste(RAGNAROC_report, "The relative abundance filter of ",min_relative," within samples had effect on the following id's and samples:\n")
+  # RAGNAROC_report <-  paste(c(RAGNAROC_report,paste(colnames(relabund_changed)),
+  #                             paste(apply(relabund_changed,1,paste0, collapse ="\t"), collapse = "\n"),
+  #                             "\n"))
+  if (ESV_within_MOTU&remove_numts) RAGNAROC_report <-  paste(RAGNAROC_report, "The numts filter found",dim(numts_ESV)[1],"numts that were removed.\n")
   sink("RAGNAROC_summary_report.txt")
   cat(RAGNAROC_report)
   sink()
@@ -447,8 +458,8 @@ compare.DNA <- function(x,y){
 }
 numts<-function(datas, is_metazoa=FALSE, motu, datas_length)
 {
-  library(Biostrings)
-  library(stringr)
+  suppressPackageStartupMessages(library(Biostrings))
+  suppressPackageStartupMessages(library(stringr))
 
   # compare only mitochondrial genetic code
   mitochondrial_GC <- c(2,3,4,5,7,11,12,14,15,16,17,18)
