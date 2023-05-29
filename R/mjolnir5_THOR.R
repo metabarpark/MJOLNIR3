@@ -888,21 +888,21 @@ mjolnir5_THOR <- function(lib,cores,tax_dir,tax_dms_name=NULL,obipath="",run_eco
     # inspect if higher rank than order can be filled if they haven't in previous steps
 
     if (length(na_taxa)>0) {
-      if (grepl("phylum_name",na_taxa) & !grepl("class_name",na_taxa)) {
-        if (matrix.data["class_name",2]%in%taxo_names$class_name) {
+      if (("phylum_name" %in% na_taxa) & !("class_name" %in% na_taxa)) {
+        if (matrix.data["class_name",2] %in% taxo_names$class_name) {
           matrix.data[match(c("superkingdom_name"),rownames(matrix.data)),2] <- taxo_names[taxo_names$class_name==matrix.data["class_name",2],c("superkingdom_name")][1]
           matrix.data[match(c("kingdom_name"),rownames(matrix.data)),2] <- taxo_names[taxo_names$class_name==matrix.data["class_name",2],c("kingdom_name")][1]
           matrix.data[match(c("phylum_name"),rownames(matrix.data)),2] <- taxo_names[taxo_names$class_name==matrix.data["class_name",2],c("phylum_name")][1]
           # matrix.data[c("superkingdom_name","kingdom_name","phylum_name"),2] <- taxo_names[taxo_names$class_name==matrix.data["class_name",2],c("superkingdom_name","kingdom_name","phylum_name")]
         }
-      } else if (grepl("kingdom_name",na_taxa) & !grepl("phylum_name",na_taxa)) {
-        if (matrix.data["phylum_name",2]%in%taxo_names$phylum_name) {
+      } else if (("kingdom_name" %in% na_taxa) & !("phylum_name" %in% na_taxa)) {
+        if (matrix.data["phylum_name",2] %in% taxo_names$phylum_name) {
           matrix.data[match(c("superkingdom_name"),rownames(matrix.data)),2] <- taxo_names[taxo_names$phylum_name==matrix.data["phylum_name",2],c("superkingdom_name")][1]
           matrix.data[match(c("kingdom_name"),rownames(matrix.data)),2] <- taxo_names[taxo_names$phylum_name==matrix.data["phylum_name",2],c("kingdom_name")][1]
           # matrix.data[c("superkingdom_name","kingdom_name"),2] <- taxo_names[taxo_names$phylum_name==matrix.data["phylum_name",2],c("superkingdom_name","kingdom_name")][1,]
         }
-      } else if (grepl("superkingdom_name",na_taxa) & !grepl("kingdom_name",na_taxa)) {
-        if (matrix.data["kingdom_name",2]%in%taxo_names$kingdom_name) {
+      } else if (("superkingdom_name" %in% na_taxa) & !("kingdom_name" %in% na_taxa)) {
+        if (matrix.data["kingdom_name",2] %in% taxo_names$kingdom_name) {
           matrix.data[c("superkingdom_name"),2] <- taxo_names[taxo_names$kingdom_name==matrix.data["kingdom_name",2],c("superkingdom_name")][1]
         }
       }
@@ -917,7 +917,7 @@ mjolnir5_THOR <- function(lib,cores,tax_dir,tax_dms_name=NULL,obipath="",run_eco
 
     db.out[1,] <- matrix.data[match(columns,rownames(matrix.data)),2]
 
-    # print(db.out)
+    # print(db.out) }
     return(db.out)
   }
 
