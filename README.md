@@ -210,8 +210,18 @@ The function mjolnir6_FRIGGA() will join the taxonomic information obtained by T
 
 The next step of MJOLNIR3 is the removal of possible remaining errors using the mjolnir7_LOKI() function. This is a wrapper of the LULU algorithm. The information about the removed putative errors is also stored as an additional output file, together with the information of their possible mother sequences. This file can be checked to assess the taxonomic coherence of the results. A EXPX_LOKI_curated.csv file is created.
 
-## WARNING!! From here and below, the README.md file is not updated. Please do not take this into account, we are working on it!
-
 <B>8. RAGNAROC: Replace AGnomens with Names And Recover Original Codification</B>
 
-mjolnir8_RAGNAROC() is the last step of the MJOLNIR3 pipeline. It requires a tsv metadata table (default name: LIBX_metadata.tsv) with a column of the original sample names and another column with the internal agnomens used along the rest of the pipeline. RAGNAROC also reorders the sample columns by alphabetical order and produces the LIBX.final_dataset.csv file. RAGNAROC will apply a Relative Read Abundance (RRA) filter on a sample by sample basis, removing reads of MOTUs that are below a relative RRA threshold (default min_relative=1/50000) for every particular sample. RAGNAROC will then apply a total abundance filter to the MOTUs, removing MOTUs that have lower total abundance than a given value (default min_reads=2). RAGNAROC will also optionally remove those MOTUs that have been assigned to prokaryotic sequences or to the root of the Tree Of Life. Those MOTUs that are considered contaminants (as specified in a dedicated text file) can also be automatically removed. The MOTUs surviving RAGNAROC can also be ordered by their taxonomy or their abundance before writing the LIBX.final_dataset.csv file.
+mjolnir8_RAGNAROC() is the last step of the MJOLNIR3 pipeline. It requires a tsv metadata table (default name: LIBX_metadata.tsv) with a column of the original sample names and another column with the internal agnomens used along the rest of the pipeline. In addition an extra column is required for the blank correction. This column must be named as the "blank_col" option and each negative/control/blank sample must be tagged as specified in "blank_tag". If contamination removal (see below) is performed, a file named as set in "contamination_file" option containing a list of all taxa names to be removed is required. The filtering steps go as follows:
+
+- Removal of Bacteria: this removed the Units tagged as "Prokaryota" or "root" in the <EXPX>_LOKI_Cutated.tsv
+
+- Removal of contaminations: this step removes the taxa specified in the "contaminaion_file"
+  
+- Blank filter: remove any MOTU for which abundance in the blank or negative controls is higher than "blank_relative" of its total read abundance and remove blank and NEG samples
+  
+- Minimum relative abundance filter: Apply a minimum relative abundance threshold for each sample, setting to zero any abundance below "min_relative" of the total reads of this sample. It also applies a "min_reads" filter
+  
+- NUMT removal: this step is design for the Leray-XT COI marker. It deletes all sequences that do not have a 313 (plus/minus multiple of 3 equivalent to a codon) bp length. Then removes sequences with stop codons and those metazoan sequences that do not translate for 5 specific conservative aminoacids.
+
+Finally a special letter from the GODs will be retrieved but only if you try it you will see it!
