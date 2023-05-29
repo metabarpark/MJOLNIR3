@@ -513,8 +513,8 @@ mjolnir4_ODIN <- function(lib,cores,d=13,min_reads_MOTU=2,min_reads_ESV=2,alpha=
       }
     }
   }
-  save(file = "summary_ODIN.RData",list = c(c("alpha","min_reads_MOTU","min_reads_ESV","algorithm","run_entropy","entropy"),
-                                     c("before_1_ODIN","after_2_ODIN","after_4a_ODIN")[sapply(c("before_1_ODIN","after_2_ODIN","after_4a_ODIN"), exists)]))
+  save(file = "summary_ODIN.RData",list = c(c("alpha","min_reads_MOTU","min_reads_ESV","algorithm","run_entropy","entropy","after_2_ODIN"),
+                                     c("before_1_ODIN")[exists("before_1_ODIN")],c("after_4a_ODIN")[exists("after_4a_ODIN")]))
   if (remove_DMS) {
     system(paste0("rm -r *ODIN.obidms "),intern=T,wait=T)
   }
